@@ -1,0 +1,33 @@
+version: "2"
+linters:
+  enable:
+    - decorder
+    - dogsled
+    - errorlint
+    - gocyclo
+    - misspell
+    - nakedret
+    - nilerr
+    - nilnil
+    - revive
+    - staticcheck
+    - unconvert
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - internal/ent/*
+formatters:
+  enable:
+    - gofmt
+    - gci
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
