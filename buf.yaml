@@ -1,0 +1,11 @@
+version: v2
+deps:
+  - buf.build/googleapis/googleapis
+  - buf.build/grpc-ecosystem/grpc-gateway
+lint:
+  use:
+    - STANDARD
+  rpc_allow_google_protobuf_empty_requests: true
+breaking:
+  use:
+    - FILE
