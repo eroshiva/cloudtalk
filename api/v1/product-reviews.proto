@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package api.v1;
+
+option go_package = "github.com/eroshiva/cloudtalk/api/v1/product-reviews;apiv1";
+
+import "api/v1/ent/opts.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+service DeviceMonitoringService {
+  // CreateProduct allows to add a new Product resource to the inventory.
+  // Response will contain Product resource with ID assigned internally by the system.
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {
+    option (google.api.http) = {
+      post: "/v1/product/create"
+      body: "*"
+    };
+  }
+  // GetProduct allows to retrieve Product resource by specified ID.
+  rpc GetProduct(GetProductByIDRequest) returns (GetProductByIDResponse) {
+    option (google.api.http) = {
+      get: "/v1/product/get/{id}"
+    };
+  }
+  // EditProduct allows to update Product resource in a PATCH fashion.
+  // Response contains Product resource reflecting recent changes.
+  rpc EditProduct(EditProductRequest) returns (EditProductResponse) {
+    option (google.api.http) = {
+      patch: "/v1/product/edit"
+      body: "*"
+    };
+  }
+  // DeleteProduct allows to remove Product resource from the inventory.
+  // In order to do so, you should remember ID assigned internally by the system.
+  rpc DeleteProduct(DeleteProductRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/product/{id}"
+      body: "*"
+    };
+  }
+  // ListProducts allows to retrieve all Product resources from the inventory.
+  rpc ListProducts(google.protobuf.Empty) returns (ListProductsResponse) {
+    option (google.api.http) = {
+      get: "/v1/product/all"
+    };
+  }
+
+  // CreateReview allows to add a new Review resource to the inventory.
+  // Response will contain Product resource with ID assigned internally by the system.
+  rpc CreateReview(CreateReviewRequest) returns (CreateReviewResponse) {
+    option (google.api.http) = {
+      post: "/v1/review/create"
+      body: "*"
+    };
+  }
+  // GetReviewByProductID allows to retrieve Review resource by specified Product ID.
+  rpc GetReviewByProductID(GetReviewsByProductIDRequest) returns (GetReviewsByProductIDResponse) {
+    option (google.api.http) = {
+      get: "/v1/review/get/product/{id}"
+    };
+  }
+  // EditReview allows to update Review resource in a PATCH fashion.
+  // Response contains Review resource reflecting recent changes.
+  rpc EditReview(EditReviewRequest) returns (EditReviewResponse) {
+    option (google.api.http) = {
+      patch: "/v1/review/edit"
+      body: "*"
+    };
+  }
+  // DeleteReview allows to remove Review resource from the inventory.
+  // In order to do so, you should remember ID assigned internally by the system.
+  rpc DeleteReview(DeleteReviewRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/review/{id}"
+      body: "*"
+    };
+  }
+}
+
+// Set of messages for Product resource manipulation
+message CreateProductRequest {
+  Product product = 1;
+}
+
+message CreateProductResponse {
+  Product product = 1;
+}
+
+message GetProductByIDRequest {
+  string id = 1;
+}
+
+message GetProductByIDResponse {
+  Product product = 1;
+}
+
+message EditProductRequest {
+  Product product = 1;
+}
+
+message EditProductResponse {
+  Product product = 1;
+}
+
+message DeleteProductRequest {
+  string id = 1;
+}
+
+message ListProductsResponse {
+  repeated Product products = 1;
+}
+
+// Set of messages for Review resource manipulation
+message CreateReviewRequest {
+  Review review = 1;
+}
+
+message CreateReviewResponse {
+  Review review = 1;
+}
+
+message EditReviewRequest {
+  Review review = 1;
+}
+
+message EditReviewResponse {
+  Review review = 1;
+}
+
+message DeleteReviewRequest {
+  string id = 1;
+}
+
+message GetReviewsByProductIDRequest {
+  string id = 1; // this is a Product resource ID
+}
+
+message GetReviewsByProductIDResponse {
+  repeated Review reviews = 1;
+}
+
+// Modelling DB resources below.
+// Product resource definition.
+message Product {
+  option (ent.schema) = {gen: true};
+  // ID of the product resource internally assigned by the controller.
+  string id = 1;
+
+  string name = 2;
+  string description = 3;
+  string price = 4; // this is to avoid floating point number precision issues
+  repeated Review reviews = 5 [(ent.edge) = {}];
+  string average_rating = 6; // might not be part of the product
+}
+
+// Review resource definition.
+message Review {
+  option (ent.schema) = {gen: true};
+  // ID of the review resource internally assigned by the controller.
+  string id = 1;
+
+  string first_name = 2;
+  string last_name = 3;
+  string review_text = 4;
+  int32 rating = 5;
+
+  Product product = 10 [(ent.edge) = {ref: "reviews", unique: true}];
+}
