@@ -18,7 +18,7 @@ service DeviceMonitoringService {
     };
   }
   // GetProduct allows to retrieve Product resource by specified ID.
-  rpc GetProduct(GetProductByIDRequest) returns (GetProductByIDResponse) {
+  rpc GetProductByID(GetProductByIDRequest) returns (GetProductByIDResponse) {
     option (google.api.http) = {
       get: "/v1/product/get/{id}"
     };
