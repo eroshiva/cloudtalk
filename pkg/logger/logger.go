@@ -1,4 +1,4 @@
-// Package logger provides a single entry for logs aggregation and collection over the codebase
+// Package logger provides a single entry for logs aggregation and collection over the codebase.
 package logger
 
 import (
