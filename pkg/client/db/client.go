@@ -1,4 +1,4 @@
-// Package client implements a client for interaction with DB.
+// Package db implements a client for interaction with DB.
 package db
 
 import (
@@ -47,6 +47,7 @@ func CreateProduct(ctx context.Context, client *ent.Client, name, description, p
 		SetName(name).
 		SetDescription(description).
 		SetPrice(price).
+		SetAverageRating("0"). // created product doesn't have any reviews yet, setting ratings value to 0
 		Save(ctx)
 	if err != nil {
 		zlog.Err(err).Msgf("Failed to create product %s", name)
