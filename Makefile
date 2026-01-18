@@ -162,7 +162,7 @@ poc-test: ## Runs PoC in Kubernetes cluster
 poc-test: kind-install create-cluster go-tidy kind update-product-reviews-charts deploy-product-reviews deploy-product-reviews helm-test delete-cluster
 
 go-tidy: ## Runs go mod related commands
-	go mod tidy\
+	go mod tidy
 	go mod vendor
 
 clean-vendor: ## Cleans only vendor folder
