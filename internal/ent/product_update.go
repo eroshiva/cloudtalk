@@ -23,116 +23,116 @@ type ProductUpdate struct {
 }
 
 // Where appends a list predicates to the ProductUpdate builder.
-func (pu *ProductUpdate) Where(ps ...predicate.Product) *ProductUpdate {
-	pu.mutation.Where(ps...)
-	return pu
+func (_u *ProductUpdate) Where(ps ...predicate.Product) *ProductUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetName sets the "name" field.
-func (pu *ProductUpdate) SetName(s string) *ProductUpdate {
-	pu.mutation.SetName(s)
-	return pu
+func (_u *ProductUpdate) SetName(v string) *ProductUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (pu *ProductUpdate) SetNillableName(s *string) *ProductUpdate {
-	if s != nil {
-		pu.SetName(*s)
+func (_u *ProductUpdate) SetNillableName(v *string) *ProductUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return pu
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (pu *ProductUpdate) SetDescription(s string) *ProductUpdate {
-	pu.mutation.SetDescription(s)
-	return pu
+func (_u *ProductUpdate) SetDescription(v string) *ProductUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (pu *ProductUpdate) SetNillableDescription(s *string) *ProductUpdate {
-	if s != nil {
-		pu.SetDescription(*s)
+func (_u *ProductUpdate) SetNillableDescription(v *string) *ProductUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return pu
+	return _u
 }
 
 // SetPrice sets the "price" field.
-func (pu *ProductUpdate) SetPrice(s string) *ProductUpdate {
-	pu.mutation.SetPrice(s)
-	return pu
+func (_u *ProductUpdate) SetPrice(v string) *ProductUpdate {
+	_u.mutation.SetPrice(v)
+	return _u
 }
 
 // SetNillablePrice sets the "price" field if the given value is not nil.
-func (pu *ProductUpdate) SetNillablePrice(s *string) *ProductUpdate {
-	if s != nil {
-		pu.SetPrice(*s)
+func (_u *ProductUpdate) SetNillablePrice(v *string) *ProductUpdate {
+	if v != nil {
+		_u.SetPrice(*v)
 	}
-	return pu
+	return _u
 }
 
 // SetAverageRating sets the "average_rating" field.
-func (pu *ProductUpdate) SetAverageRating(s string) *ProductUpdate {
-	pu.mutation.SetAverageRating(s)
-	return pu
+func (_u *ProductUpdate) SetAverageRating(v string) *ProductUpdate {
+	_u.mutation.SetAverageRating(v)
+	return _u
 }
 
 // SetNillableAverageRating sets the "average_rating" field if the given value is not nil.
-func (pu *ProductUpdate) SetNillableAverageRating(s *string) *ProductUpdate {
-	if s != nil {
-		pu.SetAverageRating(*s)
+func (_u *ProductUpdate) SetNillableAverageRating(v *string) *ProductUpdate {
+	if v != nil {
+		_u.SetAverageRating(*v)
 	}
-	return pu
+	return _u
 }
 
 // AddReviewIDs adds the "reviews" edge to the Review entity by IDs.
-func (pu *ProductUpdate) AddReviewIDs(ids ...string) *ProductUpdate {
-	pu.mutation.AddReviewIDs(ids...)
-	return pu
+func (_u *ProductUpdate) AddReviewIDs(ids ...string) *ProductUpdate {
+	_u.mutation.AddReviewIDs(ids...)
+	return _u
 }
 
 // AddReviews adds the "reviews" edges to the Review entity.
-func (pu *ProductUpdate) AddReviews(r ...*Review) *ProductUpdate {
-	ids := make([]string, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *ProductUpdate) AddReviews(v ...*Review) *ProductUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return pu.AddReviewIDs(ids...)
+	return _u.AddReviewIDs(ids...)
 }
 
 // Mutation returns the ProductMutation object of the builder.
-func (pu *ProductUpdate) Mutation() *ProductMutation {
-	return pu.mutation
+func (_u *ProductUpdate) Mutation() *ProductMutation {
+	return _u.mutation
 }
 
 // ClearReviews clears all "reviews" edges to the Review entity.
-func (pu *ProductUpdate) ClearReviews() *ProductUpdate {
-	pu.mutation.ClearReviews()
-	return pu
+func (_u *ProductUpdate) ClearReviews() *ProductUpdate {
+	_u.mutation.ClearReviews()
+	return _u
 }
 
 // RemoveReviewIDs removes the "reviews" edge to Review entities by IDs.
-func (pu *ProductUpdate) RemoveReviewIDs(ids ...string) *ProductUpdate {
-	pu.mutation.RemoveReviewIDs(ids...)
-	return pu
+func (_u *ProductUpdate) RemoveReviewIDs(ids ...string) *ProductUpdate {
+	_u.mutation.RemoveReviewIDs(ids...)
+	return _u
 }
 
 // RemoveReviews removes "reviews" edges to Review entities.
-func (pu *ProductUpdate) RemoveReviews(r ...*Review) *ProductUpdate {
-	ids := make([]string, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *ProductUpdate) RemoveReviews(v ...*Review) *ProductUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return pu.RemoveReviewIDs(ids...)
+	return _u.RemoveReviewIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (pu *ProductUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, pu.sqlSave, pu.mutation, pu.hooks)
+func (_u *ProductUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (pu *ProductUpdate) SaveX(ctx context.Context) int {
-	affected, err := pu.Save(ctx)
+func (_u *ProductUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -140,40 +140,40 @@ func (pu *ProductUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (pu *ProductUpdate) Exec(ctx context.Context) error {
-	_, err := pu.Save(ctx)
+func (_u *ProductUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pu *ProductUpdate) ExecX(ctx context.Context) {
-	if err := pu.Exec(ctx); err != nil {
+func (_u *ProductUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *ProductUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(product.Table, product.Columns, sqlgraph.NewFieldSpec(product.FieldID, field.TypeString))
-	if ps := pu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := pu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(product.FieldName, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(product.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.Price(); ok {
+	if value, ok := _u.mutation.Price(); ok {
 		_spec.SetField(product.FieldPrice, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.AverageRating(); ok {
+	if value, ok := _u.mutation.AverageRating(); ok {
 		_spec.SetField(product.FieldAverageRating, field.TypeString, value)
 	}
-	if pu.mutation.ReviewsCleared() {
+	if _u.mutation.ReviewsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -186,7 +186,7 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pu.mutation.RemovedReviewsIDs(); len(nodes) > 0 && !pu.mutation.ReviewsCleared() {
+	if nodes := _u.mutation.RemovedReviewsIDs(); len(nodes) > 0 && !_u.mutation.ReviewsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -202,7 +202,7 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pu.mutation.ReviewsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ReviewsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -218,7 +218,7 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{product.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -226,8 +226,8 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	pu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // ProductUpdateOne is the builder for updating a single Product entity.
@@ -239,123 +239,123 @@ type ProductUpdateOne struct {
 }
 
 // SetName sets the "name" field.
-func (puo *ProductUpdateOne) SetName(s string) *ProductUpdateOne {
-	puo.mutation.SetName(s)
-	return puo
+func (_u *ProductUpdateOne) SetName(v string) *ProductUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (puo *ProductUpdateOne) SetNillableName(s *string) *ProductUpdateOne {
-	if s != nil {
-		puo.SetName(*s)
+func (_u *ProductUpdateOne) SetNillableName(v *string) *ProductUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return puo
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (puo *ProductUpdateOne) SetDescription(s string) *ProductUpdateOne {
-	puo.mutation.SetDescription(s)
-	return puo
+func (_u *ProductUpdateOne) SetDescription(v string) *ProductUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (puo *ProductUpdateOne) SetNillableDescription(s *string) *ProductUpdateOne {
-	if s != nil {
-		puo.SetDescription(*s)
+func (_u *ProductUpdateOne) SetNillableDescription(v *string) *ProductUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return puo
+	return _u
 }
 
 // SetPrice sets the "price" field.
-func (puo *ProductUpdateOne) SetPrice(s string) *ProductUpdateOne {
-	puo.mutation.SetPrice(s)
-	return puo
+func (_u *ProductUpdateOne) SetPrice(v string) *ProductUpdateOne {
+	_u.mutation.SetPrice(v)
+	return _u
 }
 
 // SetNillablePrice sets the "price" field if the given value is not nil.
-func (puo *ProductUpdateOne) SetNillablePrice(s *string) *ProductUpdateOne {
-	if s != nil {
-		puo.SetPrice(*s)
+func (_u *ProductUpdateOne) SetNillablePrice(v *string) *ProductUpdateOne {
+	if v != nil {
+		_u.SetPrice(*v)
 	}
-	return puo
+	return _u
 }
 
 // SetAverageRating sets the "average_rating" field.
-func (puo *ProductUpdateOne) SetAverageRating(s string) *ProductUpdateOne {
-	puo.mutation.SetAverageRating(s)
-	return puo
+func (_u *ProductUpdateOne) SetAverageRating(v string) *ProductUpdateOne {
+	_u.mutation.SetAverageRating(v)
+	return _u
 }
 
 // SetNillableAverageRating sets the "average_rating" field if the given value is not nil.
-func (puo *ProductUpdateOne) SetNillableAverageRating(s *string) *ProductUpdateOne {
-	if s != nil {
-		puo.SetAverageRating(*s)
+func (_u *ProductUpdateOne) SetNillableAverageRating(v *string) *ProductUpdateOne {
+	if v != nil {
+		_u.SetAverageRating(*v)
 	}
-	return puo
+	return _u
 }
 
 // AddReviewIDs adds the "reviews" edge to the Review entity by IDs.
-func (puo *ProductUpdateOne) AddReviewIDs(ids ...string) *ProductUpdateOne {
-	puo.mutation.AddReviewIDs(ids...)
-	return puo
+func (_u *ProductUpdateOne) AddReviewIDs(ids ...string) *ProductUpdateOne {
+	_u.mutation.AddReviewIDs(ids...)
+	return _u
 }
 
 // AddReviews adds the "reviews" edges to the Review entity.
-func (puo *ProductUpdateOne) AddReviews(r ...*Review) *ProductUpdateOne {
-	ids := make([]string, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *ProductUpdateOne) AddReviews(v ...*Review) *ProductUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return puo.AddReviewIDs(ids...)
+	return _u.AddReviewIDs(ids...)
 }
 
 // Mutation returns the ProductMutation object of the builder.
-func (puo *ProductUpdateOne) Mutation() *ProductMutation {
-	return puo.mutation
+func (_u *ProductUpdateOne) Mutation() *ProductMutation {
+	return _u.mutation
 }
 
 // ClearReviews clears all "reviews" edges to the Review entity.
-func (puo *ProductUpdateOne) ClearReviews() *ProductUpdateOne {
-	puo.mutation.ClearReviews()
-	return puo
+func (_u *ProductUpdateOne) ClearReviews() *ProductUpdateOne {
+	_u.mutation.ClearReviews()
+	return _u
 }
 
 // RemoveReviewIDs removes the "reviews" edge to Review entities by IDs.
-func (puo *ProductUpdateOne) RemoveReviewIDs(ids ...string) *ProductUpdateOne {
-	puo.mutation.RemoveReviewIDs(ids...)
-	return puo
+func (_u *ProductUpdateOne) RemoveReviewIDs(ids ...string) *ProductUpdateOne {
+	_u.mutation.RemoveReviewIDs(ids...)
+	return _u
 }
 
 // RemoveReviews removes "reviews" edges to Review entities.
-func (puo *ProductUpdateOne) RemoveReviews(r ...*Review) *ProductUpdateOne {
-	ids := make([]string, len(r))
-	for i := range r {
-		ids[i] = r[i].ID
+func (_u *ProductUpdateOne) RemoveReviews(v ...*Review) *ProductUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return puo.RemoveReviewIDs(ids...)
+	return _u.RemoveReviewIDs(ids...)
 }
 
 // Where appends a list predicates to the ProductUpdate builder.
-func (puo *ProductUpdateOne) Where(ps ...predicate.Product) *ProductUpdateOne {
-	puo.mutation.Where(ps...)
-	return puo
+func (_u *ProductUpdateOne) Where(ps ...predicate.Product) *ProductUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (puo *ProductUpdateOne) Select(field string, fields ...string) *ProductUpdateOne {
-	puo.fields = append([]string{field}, fields...)
-	return puo
+func (_u *ProductUpdateOne) Select(field string, fields ...string) *ProductUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Product entity.
-func (puo *ProductUpdateOne) Save(ctx context.Context) (*Product, error) {
-	return withHooks(ctx, puo.sqlSave, puo.mutation, puo.hooks)
+func (_u *ProductUpdateOne) Save(ctx context.Context) (*Product, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (puo *ProductUpdateOne) SaveX(ctx context.Context) *Product {
-	node, err := puo.Save(ctx)
+func (_u *ProductUpdateOne) SaveX(ctx context.Context) *Product {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -363,26 +363,26 @@ func (puo *ProductUpdateOne) SaveX(ctx context.Context) *Product {
 }
 
 // Exec executes the query on the entity.
-func (puo *ProductUpdateOne) Exec(ctx context.Context) error {
-	_, err := puo.Save(ctx)
+func (_u *ProductUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (puo *ProductUpdateOne) ExecX(ctx context.Context) {
-	if err := puo.Exec(ctx); err != nil {
+func (_u *ProductUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err error) {
+func (_u *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err error) {
 	_spec := sqlgraph.NewUpdateSpec(product.Table, product.Columns, sqlgraph.NewFieldSpec(product.FieldID, field.TypeString))
-	id, ok := puo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Product.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := puo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, product.FieldID)
 		for _, f := range fields {
@@ -394,26 +394,26 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 			}
 		}
 	}
-	if ps := puo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := puo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(product.FieldName, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(product.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.Price(); ok {
+	if value, ok := _u.mutation.Price(); ok {
 		_spec.SetField(product.FieldPrice, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.AverageRating(); ok {
+	if value, ok := _u.mutation.AverageRating(); ok {
 		_spec.SetField(product.FieldAverageRating, field.TypeString, value)
 	}
-	if puo.mutation.ReviewsCleared() {
+	if _u.mutation.ReviewsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -426,7 +426,7 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := puo.mutation.RemovedReviewsIDs(); len(nodes) > 0 && !puo.mutation.ReviewsCleared() {
+	if nodes := _u.mutation.RemovedReviewsIDs(); len(nodes) > 0 && !_u.mutation.ReviewsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -442,7 +442,7 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := puo.mutation.ReviewsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ReviewsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -458,10 +458,10 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Product{config: puo.config}
+	_node = &Product{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, puo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{product.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -469,6 +469,6 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 		}
 		return nil, err
 	}
-	puo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

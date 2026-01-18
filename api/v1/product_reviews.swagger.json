@@ -1,0 +1,509 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/v1/product_reviews.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ProductReviewsService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/product/all": {
+      "get": {
+        "summary": "ListProducts allows to retrieve all Product resources from the inventory.",
+        "operationId": "ProductReviewsService_ListProducts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListProductsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "ProductReviewsService"
+        ]
+      }
+    },
+    "/v1/product/create": {
+      "post": {
+        "summary": "CreateProduct allows to add a new Product resource to the inventory.\nResponse will contain Product resource with ID assigned internally by the system.",
+        "operationId": "ProductReviewsService_CreateProduct",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateProductResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateProductRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ProductReviewsService"
+        ]
+      }
+    },
+    "/v1/product/edit": {
+      "patch": {
+        "summary": "EditProduct allows to update Product resource in a PATCH fashion.\nResponse contains Product resource reflecting recent changes.",
+        "operationId": "ProductReviewsService_EditProduct",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EditProductResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EditProductRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ProductReviewsService"
+        ]
+      }
+    },
+    "/v1/product/get/{id}": {
+      "get": {
+        "summary": "GetProduct allows to retrieve Product resource by specified ID.",
+        "operationId": "ProductReviewsService_GetProductByID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetProductByIDResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ProductReviewsService"
+        ]
+      }
+    },
+    "/v1/product/{id}": {
+      "delete": {
+        "summary": "DeleteProduct allows to remove Product resource from the inventory.\nIn order to do so, you should remember ID assigned internally by the system.",
+        "operationId": "ProductReviewsService_DeleteProduct",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProductReviewsServiceDeleteProductBody"
+            }
+          }
+        ],
+        "tags": [
+          "ProductReviewsService"
+        ]
+      }
+    },
+    "/v1/review/create": {
+      "post": {
+        "summary": "CreateReview allows to add a new Review resource to the inventory.\nResponse will contain Product resource with ID assigned internally by the system.",
+        "operationId": "ProductReviewsService_CreateReview",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateReviewResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateReviewRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ProductReviewsService"
+        ]
+      }
+    },
+    "/v1/review/edit": {
+      "patch": {
+        "summary": "EditReview allows to update Review resource in a PATCH fashion.\nResponse contains Review resource reflecting recent changes.",
+        "operationId": "ProductReviewsService_EditReview",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1EditReviewResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EditReviewRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ProductReviewsService"
+        ]
+      }
+    },
+    "/v1/review/get/product/{id}": {
+      "get": {
+        "summary": "GetReviewsByProductID allows to retrieve Review resource by specified Product ID.",
+        "operationId": "ProductReviewsService_GetReviewsByProductID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetReviewsByProductIDResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "this is a Product resource ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ProductReviewsService"
+        ]
+      }
+    },
+    "/v1/review/{id}": {
+      "delete": {
+        "summary": "DeleteReview allows to remove Review resource from the inventory.\nIn order to do so, you should remember ID assigned internally by the system.",
+        "operationId": "ProductReviewsService_DeleteReview",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProductReviewsServiceDeleteReviewBody"
+            }
+          }
+        ],
+        "tags": [
+          "ProductReviewsService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ProductReviewsServiceDeleteProductBody": {
+      "type": "object"
+    },
+    "ProductReviewsServiceDeleteReviewBody": {
+      "type": "object"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1CreateProductRequest": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/definitions/v1Product"
+        }
+      },
+      "title": "Set of messages for Product resource manipulation"
+    },
+    "v1CreateProductResponse": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/definitions/v1Product"
+        }
+      }
+    },
+    "v1CreateReviewRequest": {
+      "type": "object",
+      "properties": {
+        "review": {
+          "$ref": "#/definitions/v1Review"
+        }
+      },
+      "title": "Set of messages for Review resource manipulation"
+    },
+    "v1CreateReviewResponse": {
+      "type": "object",
+      "properties": {
+        "review": {
+          "$ref": "#/definitions/v1Review"
+        }
+      }
+    },
+    "v1EditProductRequest": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/definitions/v1Product"
+        }
+      }
+    },
+    "v1EditProductResponse": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/definitions/v1Product"
+        }
+      }
+    },
+    "v1EditReviewRequest": {
+      "type": "object",
+      "properties": {
+        "review": {
+          "$ref": "#/definitions/v1Review"
+        }
+      }
+    },
+    "v1EditReviewResponse": {
+      "type": "object",
+      "properties": {
+        "review": {
+          "$ref": "#/definitions/v1Review"
+        }
+      }
+    },
+    "v1GetProductByIDResponse": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/definitions/v1Product"
+        }
+      }
+    },
+    "v1GetReviewsByProductIDResponse": {
+      "type": "object",
+      "properties": {
+        "reviews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Review"
+          }
+        }
+      }
+    },
+    "v1ListProductsResponse": {
+      "type": "object",
+      "properties": {
+        "products": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Product"
+          }
+        }
+      }
+    },
+    "v1Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID of the product resource internally assigned by the controller."
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "price": {
+          "type": "string",
+          "title": "this is to avoid floating point number precision issues"
+        },
+        "reviews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Review"
+          }
+        },
+        "averageRating": {
+          "type": "string",
+          "title": "might not be part of the product"
+        }
+      },
+      "description": "Modelling DB resources below.\nProduct resource definition."
+    },
+    "v1Review": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID of the review resource internally assigned by the controller."
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "reviewText": {
+          "type": "string"
+        },
+        "rating": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "product": {
+          "$ref": "#/definitions/v1Product"
+        }
+      },
+      "description": "Review resource definition."
+    }
+  }
+}

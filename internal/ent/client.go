@@ -264,8 +264,8 @@ func (c *ProductClient) Update() *ProductUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *ProductClient) UpdateOne(pr *Product) *ProductUpdateOne {
-	mutation := newProductMutation(c.config, OpUpdateOne, withProduct(pr))
+func (c *ProductClient) UpdateOne(_m *Product) *ProductUpdateOne {
+	mutation := newProductMutation(c.config, OpUpdateOne, withProduct(_m))
 	return &ProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -282,8 +282,8 @@ func (c *ProductClient) Delete() *ProductDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *ProductClient) DeleteOne(pr *Product) *ProductDeleteOne {
-	return c.DeleteOneID(pr.ID)
+func (c *ProductClient) DeleteOne(_m *Product) *ProductDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -318,16 +318,16 @@ func (c *ProductClient) GetX(ctx context.Context, id string) *Product {
 }
 
 // QueryReviews queries the reviews edge of a Product.
-func (c *ProductClient) QueryReviews(pr *Product) *ReviewQuery {
+func (c *ProductClient) QueryReviews(_m *Product) *ReviewQuery {
 	query := (&ReviewClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(product.Table, product.FieldID, id),
 			sqlgraph.To(review.Table, review.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, product.ReviewsTable, product.ReviewsColumn),
 		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -413,8 +413,8 @@ func (c *ReviewClient) Update() *ReviewUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *ReviewClient) UpdateOne(r *Review) *ReviewUpdateOne {
-	mutation := newReviewMutation(c.config, OpUpdateOne, withReview(r))
+func (c *ReviewClient) UpdateOne(_m *Review) *ReviewUpdateOne {
+	mutation := newReviewMutation(c.config, OpUpdateOne, withReview(_m))
 	return &ReviewUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -431,8 +431,8 @@ func (c *ReviewClient) Delete() *ReviewDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *ReviewClient) DeleteOne(r *Review) *ReviewDeleteOne {
-	return c.DeleteOneID(r.ID)
+func (c *ReviewClient) DeleteOne(_m *Review) *ReviewDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -467,16 +467,16 @@ func (c *ReviewClient) GetX(ctx context.Context, id string) *Review {
 }
 
 // QueryProduct queries the product edge of a Review.
-func (c *ReviewClient) QueryProduct(r *Review) *ProductQuery {
+func (c *ReviewClient) QueryProduct(_m *Review) *ProductQuery {
 	query := (&ProductClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := r.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(review.Table, review.FieldID, id),
 			sqlgraph.To(product.Table, product.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, review.ProductTable, review.ProductColumn),
 		)
-		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query

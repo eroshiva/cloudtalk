@@ -8,7 +8,7 @@ import "api/v1/ent/opts.proto";
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 
-service DeviceMonitoringService {
+service ProductReviewsService {
   // CreateProduct allows to add a new Product resource to the inventory.
   // Response will contain Product resource with ID assigned internally by the system.
   rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {
@@ -54,8 +54,8 @@ service DeviceMonitoringService {
       body: "*"
     };
   }
-  // GetReviewByProductID allows to retrieve Review resource by specified Product ID.
-  rpc GetReviewByProductID(GetReviewsByProductIDRequest) returns (GetReviewsByProductIDResponse) {
+  // GetReviewsByProductID allows to retrieve Review resource by specified Product ID.
+  rpc GetReviewsByProductID(GetReviewsByProductIDRequest) returns (GetReviewsByProductIDResponse) {
     option (google.api.http) = {
       get: "/v1/review/get/product/{id}"
     };

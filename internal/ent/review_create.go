@@ -21,67 +21,67 @@ type ReviewCreate struct {
 }
 
 // SetFirstName sets the "first_name" field.
-func (rc *ReviewCreate) SetFirstName(s string) *ReviewCreate {
-	rc.mutation.SetFirstName(s)
-	return rc
+func (_c *ReviewCreate) SetFirstName(v string) *ReviewCreate {
+	_c.mutation.SetFirstName(v)
+	return _c
 }
 
 // SetLastName sets the "last_name" field.
-func (rc *ReviewCreate) SetLastName(s string) *ReviewCreate {
-	rc.mutation.SetLastName(s)
-	return rc
+func (_c *ReviewCreate) SetLastName(v string) *ReviewCreate {
+	_c.mutation.SetLastName(v)
+	return _c
 }
 
 // SetReviewText sets the "review_text" field.
-func (rc *ReviewCreate) SetReviewText(s string) *ReviewCreate {
-	rc.mutation.SetReviewText(s)
-	return rc
+func (_c *ReviewCreate) SetReviewText(v string) *ReviewCreate {
+	_c.mutation.SetReviewText(v)
+	return _c
 }
 
 // SetRating sets the "rating" field.
-func (rc *ReviewCreate) SetRating(i int32) *ReviewCreate {
-	rc.mutation.SetRating(i)
-	return rc
+func (_c *ReviewCreate) SetRating(v int32) *ReviewCreate {
+	_c.mutation.SetRating(v)
+	return _c
 }
 
 // SetID sets the "id" field.
-func (rc *ReviewCreate) SetID(s string) *ReviewCreate {
-	rc.mutation.SetID(s)
-	return rc
+func (_c *ReviewCreate) SetID(v string) *ReviewCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetProductID sets the "product" edge to the Product entity by ID.
-func (rc *ReviewCreate) SetProductID(id string) *ReviewCreate {
-	rc.mutation.SetProductID(id)
-	return rc
+func (_c *ReviewCreate) SetProductID(id string) *ReviewCreate {
+	_c.mutation.SetProductID(id)
+	return _c
 }
 
 // SetNillableProductID sets the "product" edge to the Product entity by ID if the given value is not nil.
-func (rc *ReviewCreate) SetNillableProductID(id *string) *ReviewCreate {
+func (_c *ReviewCreate) SetNillableProductID(id *string) *ReviewCreate {
 	if id != nil {
-		rc = rc.SetProductID(*id)
+		_c = _c.SetProductID(*id)
 	}
-	return rc
+	return _c
 }
 
 // SetProduct sets the "product" edge to the Product entity.
-func (rc *ReviewCreate) SetProduct(p *Product) *ReviewCreate {
-	return rc.SetProductID(p.ID)
+func (_c *ReviewCreate) SetProduct(v *Product) *ReviewCreate {
+	return _c.SetProductID(v.ID)
 }
 
 // Mutation returns the ReviewMutation object of the builder.
-func (rc *ReviewCreate) Mutation() *ReviewMutation {
-	return rc.mutation
+func (_c *ReviewCreate) Mutation() *ReviewMutation {
+	return _c.mutation
 }
 
 // Save creates the Review in the database.
-func (rc *ReviewCreate) Save(ctx context.Context) (*Review, error) {
-	return withHooks(ctx, rc.sqlSave, rc.mutation, rc.hooks)
+func (_c *ReviewCreate) Save(ctx context.Context) (*Review, error) {
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (rc *ReviewCreate) SaveX(ctx context.Context) *Review {
-	v, err := rc.Save(ctx)
+func (_c *ReviewCreate) SaveX(ctx context.Context) *Review {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -89,41 +89,41 @@ func (rc *ReviewCreate) SaveX(ctx context.Context) *Review {
 }
 
 // Exec executes the query.
-func (rc *ReviewCreate) Exec(ctx context.Context) error {
-	_, err := rc.Save(ctx)
+func (_c *ReviewCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (rc *ReviewCreate) ExecX(ctx context.Context) {
-	if err := rc.Exec(ctx); err != nil {
+func (_c *ReviewCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (rc *ReviewCreate) check() error {
-	if _, ok := rc.mutation.FirstName(); !ok {
+func (_c *ReviewCreate) check() error {
+	if _, ok := _c.mutation.FirstName(); !ok {
 		return &ValidationError{Name: "first_name", err: errors.New(`ent: missing required field "Review.first_name"`)}
 	}
-	if _, ok := rc.mutation.LastName(); !ok {
+	if _, ok := _c.mutation.LastName(); !ok {
 		return &ValidationError{Name: "last_name", err: errors.New(`ent: missing required field "Review.last_name"`)}
 	}
-	if _, ok := rc.mutation.ReviewText(); !ok {
+	if _, ok := _c.mutation.ReviewText(); !ok {
 		return &ValidationError{Name: "review_text", err: errors.New(`ent: missing required field "Review.review_text"`)}
 	}
-	if _, ok := rc.mutation.Rating(); !ok {
+	if _, ok := _c.mutation.Rating(); !ok {
 		return &ValidationError{Name: "rating", err: errors.New(`ent: missing required field "Review.rating"`)}
 	}
 	return nil
 }
 
-func (rc *ReviewCreate) sqlSave(ctx context.Context) (*Review, error) {
-	if err := rc.check(); err != nil {
+func (_c *ReviewCreate) sqlSave(ctx context.Context) (*Review, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := rc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, rc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -136,37 +136,37 @@ func (rc *ReviewCreate) sqlSave(ctx context.Context) (*Review, error) {
 			return nil, fmt.Errorf("unexpected Review.ID type: %T", _spec.ID.Value)
 		}
 	}
-	rc.mutation.id = &_node.ID
-	rc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (rc *ReviewCreate) createSpec() (*Review, *sqlgraph.CreateSpec) {
+func (_c *ReviewCreate) createSpec() (*Review, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Review{config: rc.config}
+		_node = &Review{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(review.Table, sqlgraph.NewFieldSpec(review.FieldID, field.TypeString))
 	)
-	if id, ok := rc.mutation.ID(); ok {
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := rc.mutation.FirstName(); ok {
+	if value, ok := _c.mutation.FirstName(); ok {
 		_spec.SetField(review.FieldFirstName, field.TypeString, value)
 		_node.FirstName = value
 	}
-	if value, ok := rc.mutation.LastName(); ok {
+	if value, ok := _c.mutation.LastName(); ok {
 		_spec.SetField(review.FieldLastName, field.TypeString, value)
 		_node.LastName = value
 	}
-	if value, ok := rc.mutation.ReviewText(); ok {
+	if value, ok := _c.mutation.ReviewText(); ok {
 		_spec.SetField(review.FieldReviewText, field.TypeString, value)
 		_node.ReviewText = value
 	}
-	if value, ok := rc.mutation.Rating(); ok {
+	if value, ok := _c.mutation.Rating(); ok {
 		_spec.SetField(review.FieldRating, field.TypeInt32, value)
 		_node.Rating = value
 	}
-	if nodes := rc.mutation.ProductIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.ProductIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -194,16 +194,16 @@ type ReviewCreateBulk struct {
 }
 
 // Save creates the Review entities in the database.
-func (rcb *ReviewCreateBulk) Save(ctx context.Context) ([]*Review, error) {
-	if rcb.err != nil {
-		return nil, rcb.err
+func (_c *ReviewCreateBulk) Save(ctx context.Context) ([]*Review, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(rcb.builders))
-	nodes := make([]*Review, len(rcb.builders))
-	mutators := make([]Mutator, len(rcb.builders))
-	for i := range rcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Review, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := rcb.builders[i]
+			builder := _c.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ReviewMutation)
 				if !ok {
@@ -216,11 +216,11 @@ func (rcb *ReviewCreateBulk) Save(ctx context.Context) ([]*Review, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, rcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, rcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -240,7 +240,7 @@ func (rcb *ReviewCreateBulk) Save(ctx context.Context) ([]*Review, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, rcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -248,8 +248,8 @@ func (rcb *ReviewCreateBulk) Save(ctx context.Context) ([]*Review, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (rcb *ReviewCreateBulk) SaveX(ctx context.Context) []*Review {
-	v, err := rcb.Save(ctx)
+func (_c *ReviewCreateBulk) SaveX(ctx context.Context) []*Review {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -257,14 +257,14 @@ func (rcb *ReviewCreateBulk) SaveX(ctx context.Context) []*Review {
 }
 
 // Exec executes the query.
-func (rcb *ReviewCreateBulk) Exec(ctx context.Context) error {
-	_, err := rcb.Save(ctx)
+func (_c *ReviewCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (rcb *ReviewCreateBulk) ExecX(ctx context.Context) {
-	if err := rcb.Exec(ctx); err != nil {
+func (_c *ReviewCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

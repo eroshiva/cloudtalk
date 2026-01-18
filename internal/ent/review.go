@@ -72,7 +72,7 @@ func (*Review) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Review fields.
-func (r *Review) assignValues(columns []string, values []any) error {
+func (_m *Review) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -82,41 +82,41 @@ func (r *Review) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				r.ID = value.String
+				_m.ID = value.String
 			}
 		case review.FieldFirstName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field first_name", values[i])
 			} else if value.Valid {
-				r.FirstName = value.String
+				_m.FirstName = value.String
 			}
 		case review.FieldLastName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field last_name", values[i])
 			} else if value.Valid {
-				r.LastName = value.String
+				_m.LastName = value.String
 			}
 		case review.FieldReviewText:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field review_text", values[i])
 			} else if value.Valid {
-				r.ReviewText = value.String
+				_m.ReviewText = value.String
 			}
 		case review.FieldRating:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field rating", values[i])
 			} else if value.Valid {
-				r.Rating = int32(value.Int64)
+				_m.Rating = int32(value.Int64)
 			}
 		case review.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field product_reviews", values[i])
 			} else if value.Valid {
-				r.product_reviews = new(string)
-				*r.product_reviews = value.String
+				_m.product_reviews = new(string)
+				*_m.product_reviews = value.String
 			}
 		default:
-			r.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -124,49 +124,49 @@ func (r *Review) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Review.
 // This includes values selected through modifiers, order, etc.
-func (r *Review) Value(name string) (ent.Value, error) {
-	return r.selectValues.Get(name)
+func (_m *Review) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryProduct queries the "product" edge of the Review entity.
-func (r *Review) QueryProduct() *ProductQuery {
-	return NewReviewClient(r.config).QueryProduct(r)
+func (_m *Review) QueryProduct() *ProductQuery {
+	return NewReviewClient(_m.config).QueryProduct(_m)
 }
 
 // Update returns a builder for updating this Review.
 // Note that you need to call Review.Unwrap() before calling this method if this Review
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (r *Review) Update() *ReviewUpdateOne {
-	return NewReviewClient(r.config).UpdateOne(r)
+func (_m *Review) Update() *ReviewUpdateOne {
+	return NewReviewClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Review entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (r *Review) Unwrap() *Review {
-	_tx, ok := r.config.driver.(*txDriver)
+func (_m *Review) Unwrap() *Review {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Review is not a transactional entity")
 	}
-	r.config.driver = _tx.drv
-	return r
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (r *Review) String() string {
+func (_m *Review) String() string {
 	var builder strings.Builder
 	builder.WriteString("Review(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", r.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("first_name=")
-	builder.WriteString(r.FirstName)
+	builder.WriteString(_m.FirstName)
 	builder.WriteString(", ")
 	builder.WriteString("last_name=")
-	builder.WriteString(r.LastName)
+	builder.WriteString(_m.LastName)
 	builder.WriteString(", ")
 	builder.WriteString("review_text=")
-	builder.WriteString(r.ReviewText)
+	builder.WriteString(_m.ReviewText)
 	builder.WriteString(", ")
 	builder.WriteString("rating=")
-	builder.WriteString(fmt.Sprintf("%v", r.Rating))
+	builder.WriteString(fmt.Sprintf("%v", _m.Rating))
 	builder.WriteByte(')')
 	return builder.String()
 }
