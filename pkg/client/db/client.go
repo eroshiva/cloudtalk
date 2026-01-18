@@ -1,4 +1,5 @@
-package client
+// Package client implements a client for interaction with DB.
+package db
 
 import (
 	"context"
