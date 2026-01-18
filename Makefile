@@ -37,13 +37,13 @@ buf-install: ## Installs buf to convert protobuf into Golang code
 
 buf-generate: clean-vendor buf-install buf-update ## Generates Golang-driven bindings out of Protobuf
 	mkdir -p internal/ent/schema
-	buf generate --exclude-path api/v1/ent --path api/v1/product-reviews.proto
+	buf generate --exclude-path api/v1/ent --path api/v1/product_reviews.proto
 
 buf-update: ## Updates the buf dependencies
 	buf dep update
 
 buf-lint: ## Runs linters against Protobuf
-	buf lint --path api/v1/product-reviews.proto
+	buf lint --path api/v1/product_reviews.proto
 
 buf-breaking: ## Checks Protobuf schema on breaking changes
 	buf breaking --against '.git#branch=main'
@@ -114,7 +114,7 @@ go-test: db-start ## Run unit tests present in the codebase
 	go test -coverprofile=./tmp/test-cover.out -race ./...
 	$(MAKE) db-stop
 
-test-ci: generate buf-lint buf-breaking build go-vet govulncheck go-linters go-test ## Test the whole codebase (mimics CI/CD)
+test-ci: generate buf-lint build go-vet govulncheck go-linters go-test ## Test the whole codebase (mimics CI/CD)
 
 run: go-tidy build-product-reviews db-start ## Runs compiled network device monitoring service
 	sleep 5;

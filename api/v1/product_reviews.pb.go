@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: api/v1/product-reviews.proto
+// source: api/v1/product_reviews.proto
 
 package apiv1
 
@@ -863,7 +863,7 @@ var File_api_v1_product_reviews_proto protoreflect.FileDescriptor
 
 const file_api_v1_product_reviews_proto_rawDesc = "" +
 	"\n" +
-	"\x1capi/v1/product-reviews.proto\x12\x06api.v1\x1a\x15api/v1/ent/opts.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/api/annotations.proto\"A\n" +
+	"\x1capi/v1/product_reviews.proto\x12\x06api.v1\x1a\x15api/v1/ent/opts.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/api/annotations.proto\"A\n" +
 	"\x14CreateProductRequest\x12)\n" +
 	"\aproduct\x18\x01 \x01(\v2\x0f.api.v1.ProductR\aproduct\"B\n" +
 	"\x15CreateProductResponse\x12)\n" +
@@ -910,16 +910,15 @@ const file_api_v1_product_reviews_proto_rawDesc = "" +
 	"reviewText\x12\x16\n" +
 	"\x06rating\x18\x05 \x01(\x05R\x06rating\x12:\n" +
 	"\aproduct\x18\n" +
-	" \x01(\v2\x0f.api.v1.ProductB\x0f¦I\v\b\x01\x12\areviewsR\aproduct:\x06\xba\xa6I\x02\b\x012\xcf\a\n" +
-	"\x17DeviceMonitoringService\x12k\n" +
-	"\rCreateProduct\x12\x1c.api.v1.CreateProductRequest\x1a\x1d.api.v1.CreateProductResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/product/create\x12i\n" +
-	"\n" +
-	"GetProduct\x12\x1d.api.v1.GetProductByIDRequest\x1a\x1e.api.v1.GetProductByIDResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/product/get/{id}\x12c\n" +
+	" \x01(\v2\x0f.api.v1.ProductB\x0f¦I\v\b\x01\x12\areviewsR\aproduct:\x06\xba\xa6I\x02\b\x012\xd2\a\n" +
+	"\x15ProductReviewsService\x12k\n" +
+	"\rCreateProduct\x12\x1c.api.v1.CreateProductRequest\x1a\x1d.api.v1.CreateProductResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/product/create\x12m\n" +
+	"\x0eGetProductByID\x12\x1d.api.v1.GetProductByIDRequest\x1a\x1e.api.v1.GetProductByIDResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/product/get/{id}\x12c\n" +
 	"\vEditProduct\x12\x1a.api.v1.EditProductRequest\x1a\x1b.api.v1.EditProductResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*2\x10/v1/product/edit\x12b\n" +
 	"\rDeleteProduct\x12\x1c.api.v1.DeleteProductRequest\x1a\x16.google.protobuf.Empty\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01**\x10/v1/product/{id}\x12]\n" +
 	"\fListProducts\x12\x16.google.protobuf.Empty\x1a\x1c.api.v1.ListProductsResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/product/all\x12g\n" +
-	"\fCreateReview\x12\x1b.api.v1.CreateReviewRequest\x1a\x1c.api.v1.CreateReviewResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/review/create\x12\x88\x01\n" +
-	"\x14GetReviewByProductID\x12$.api.v1.GetReviewsByProductIDRequest\x1a%.api.v1.GetReviewsByProductIDResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/v1/review/get/product/{id}\x12_\n" +
+	"\fCreateReview\x12\x1b.api.v1.CreateReviewRequest\x1a\x1c.api.v1.CreateReviewResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/review/create\x12\x89\x01\n" +
+	"\x15GetReviewsByProductID\x12$.api.v1.GetReviewsByProductIDRequest\x1a%.api.v1.GetReviewsByProductIDResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/v1/review/get/product/{id}\x12_\n" +
 	"\n" +
 	"EditReview\x12\x19.api.v1.EditReviewRequest\x1a\x1a.api.v1.EditReviewResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*2\x0f/v1/review/edit\x12_\n" +
 	"\fDeleteReview\x12\x1b.api.v1.DeleteReviewRequest\x1a\x16.google.protobuf.Empty\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01**\x0f/v1/review/{id}B<Z:github.com/eroshiva/cloudtalk/api/v1/product-reviews;apiv1b\x06proto3"
@@ -971,24 +970,24 @@ var file_api_v1_product_reviews_proto_depIdxs = []int32{
 	16, // 10: api.v1.GetReviewsByProductIDResponse.reviews:type_name -> api.v1.Review
 	16, // 11: api.v1.Product.reviews:type_name -> api.v1.Review
 	15, // 12: api.v1.Review.product:type_name -> api.v1.Product
-	0,  // 13: api.v1.DeviceMonitoringService.CreateProduct:input_type -> api.v1.CreateProductRequest
-	2,  // 14: api.v1.DeviceMonitoringService.GetProduct:input_type -> api.v1.GetProductByIDRequest
-	4,  // 15: api.v1.DeviceMonitoringService.EditProduct:input_type -> api.v1.EditProductRequest
-	6,  // 16: api.v1.DeviceMonitoringService.DeleteProduct:input_type -> api.v1.DeleteProductRequest
-	17, // 17: api.v1.DeviceMonitoringService.ListProducts:input_type -> google.protobuf.Empty
-	8,  // 18: api.v1.DeviceMonitoringService.CreateReview:input_type -> api.v1.CreateReviewRequest
-	13, // 19: api.v1.DeviceMonitoringService.GetReviewByProductID:input_type -> api.v1.GetReviewsByProductIDRequest
-	10, // 20: api.v1.DeviceMonitoringService.EditReview:input_type -> api.v1.EditReviewRequest
-	12, // 21: api.v1.DeviceMonitoringService.DeleteReview:input_type -> api.v1.DeleteReviewRequest
-	1,  // 22: api.v1.DeviceMonitoringService.CreateProduct:output_type -> api.v1.CreateProductResponse
-	3,  // 23: api.v1.DeviceMonitoringService.GetProduct:output_type -> api.v1.GetProductByIDResponse
-	5,  // 24: api.v1.DeviceMonitoringService.EditProduct:output_type -> api.v1.EditProductResponse
-	17, // 25: api.v1.DeviceMonitoringService.DeleteProduct:output_type -> google.protobuf.Empty
-	7,  // 26: api.v1.DeviceMonitoringService.ListProducts:output_type -> api.v1.ListProductsResponse
-	9,  // 27: api.v1.DeviceMonitoringService.CreateReview:output_type -> api.v1.CreateReviewResponse
-	14, // 28: api.v1.DeviceMonitoringService.GetReviewByProductID:output_type -> api.v1.GetReviewsByProductIDResponse
-	11, // 29: api.v1.DeviceMonitoringService.EditReview:output_type -> api.v1.EditReviewResponse
-	17, // 30: api.v1.DeviceMonitoringService.DeleteReview:output_type -> google.protobuf.Empty
+	0,  // 13: api.v1.ProductReviewsService.CreateProduct:input_type -> api.v1.CreateProductRequest
+	2,  // 14: api.v1.ProductReviewsService.GetProductByID:input_type -> api.v1.GetProductByIDRequest
+	4,  // 15: api.v1.ProductReviewsService.EditProduct:input_type -> api.v1.EditProductRequest
+	6,  // 16: api.v1.ProductReviewsService.DeleteProduct:input_type -> api.v1.DeleteProductRequest
+	17, // 17: api.v1.ProductReviewsService.ListProducts:input_type -> google.protobuf.Empty
+	8,  // 18: api.v1.ProductReviewsService.CreateReview:input_type -> api.v1.CreateReviewRequest
+	13, // 19: api.v1.ProductReviewsService.GetReviewsByProductID:input_type -> api.v1.GetReviewsByProductIDRequest
+	10, // 20: api.v1.ProductReviewsService.EditReview:input_type -> api.v1.EditReviewRequest
+	12, // 21: api.v1.ProductReviewsService.DeleteReview:input_type -> api.v1.DeleteReviewRequest
+	1,  // 22: api.v1.ProductReviewsService.CreateProduct:output_type -> api.v1.CreateProductResponse
+	3,  // 23: api.v1.ProductReviewsService.GetProductByID:output_type -> api.v1.GetProductByIDResponse
+	5,  // 24: api.v1.ProductReviewsService.EditProduct:output_type -> api.v1.EditProductResponse
+	17, // 25: api.v1.ProductReviewsService.DeleteProduct:output_type -> google.protobuf.Empty
+	7,  // 26: api.v1.ProductReviewsService.ListProducts:output_type -> api.v1.ListProductsResponse
+	9,  // 27: api.v1.ProductReviewsService.CreateReview:output_type -> api.v1.CreateReviewResponse
+	14, // 28: api.v1.ProductReviewsService.GetReviewsByProductID:output_type -> api.v1.GetReviewsByProductIDResponse
+	11, // 29: api.v1.ProductReviewsService.EditReview:output_type -> api.v1.EditReviewResponse
+	17, // 30: api.v1.ProductReviewsService.DeleteReview:output_type -> google.protobuf.Empty
 	22, // [22:31] is the sub-list for method output_type
 	13, // [13:22] is the sub-list for method input_type
 	13, // [13:13] is the sub-list for extension type_name
