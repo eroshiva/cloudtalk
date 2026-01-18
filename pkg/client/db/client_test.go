@@ -35,9 +35,7 @@ const (
 	reviewer3Rating   = 2
 )
 
-var (
-	client *ent.Client
-)
+var client *ent.Client
 
 func TestMain(m *testing.M) {
 	var err error
