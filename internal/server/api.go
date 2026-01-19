@@ -115,3 +115,107 @@ func (srv *server) ListProducts(ctx context.Context) ([]*apiv1.Product, error) {
 	}
 	return resp, nil
 }
+
+// CreateReview creates Review resource in the DB. Enough to specify only Product ID in the Product field.
+func (srv *server) CreateReview(ctx context.Context, req *apiv1.CreateReviewRequest) (*apiv1.CreateReviewResponse, error) {
+	zlog.Info().Msgf("Creating review %s", req.GetReview().GetId())
+	// sanity check
+	if req.GetReview() == nil {
+		err := fmt.Errorf("review resource is not specified")
+		zlog.Error().Err(err).Msg("Failed to create review")
+		return nil, err
+	}
+	if req.GetReview().GetFirstName() == "" || req.GetReview().GetLastName() == "" {
+		err := fmt.Errorf("reviewer's identity is not specified")
+		zlog.Error().Err(err).Msg("Failed to create review")
+		return nil, err
+	}
+	if !(req.GetReview().GetRating() >= 1 && req.GetReview().GetRating() <= 5) {
+		err := fmt.Errorf("reviewer's rating is out of boundaries")
+		zlog.Error().Err(err).Msg("Failed to create review")
+		return nil, err
+	}
+	// allowing to create review with empty text
+
+	// creating review
+	r, err := db.CreateReview(ctx, srv.dbClient, req.GetReview().GetFirstName(), req.GetReview().GetLastName(),
+		req.GetReview().GetReviewText(), req.GetReview().GetRating(), ConvertProductProtobufToProductResource(req.GetReview().GetProduct()))
+	if err != nil {
+		return nil, err
+	}
+
+	return &apiv1.CreateReviewResponse{
+		Review: ConvertReviewResourceToProtobuf(r),
+	}, nil
+}
+
+// GetReviewsByProductID retrieves Review resource by Product ID from DB.
+func (srv *server) GetReviewsByProductID(ctx context.Context, req *apiv1.GetReviewsByProductIDRequest) (*apiv1.GetReviewsByProductIDResponse, error) {
+	zlog.Info().Msgf("Retrieving Review by Product ID (%s)", req.GetId())
+	// sanity check
+	if req.GetId() == "" {
+		err := fmt.Errorf("product ID is not specified")
+		zlog.Error().Err(err).Msg("Failed to retrieve review by product ID")
+		return nil, err
+	}
+
+	// retrieving resource
+	rs, err := db.GetReviewsByProductID(ctx, srv.dbClient, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	// converting back to Protobuf format
+	reviews := make([]*apiv1.Review, 0)
+	for _, r := range rs {
+		reviews = append(reviews, ConvertReviewResourceToProtobuf(r))
+	}
+	return &apiv1.GetReviewsByProductIDResponse{
+		Reviews: reviews,
+	}, nil
+}
+
+// EditReview updates specified fields of the Review resource in teh DB.
+func (srv *server) EditReview(ctx context.Context, req *apiv1.EditReviewRequest) (*apiv1.EditReviewResponse, error) {
+	zlog.Info().Msgf("Editing review (%s)", req.GetReview().GetId())
+	// sanity check
+	if req.GetReview() == nil {
+		err := fmt.Errorf("review resource is not specified")
+		zlog.Error().Err(err).Msg("Failed to edit review")
+		return nil, err
+	}
+	if req.GetReview().GetId() == "" {
+		err := fmt.Errorf("review ID is not specified")
+		zlog.Error().Err(err).Msg("Failed to edit review")
+		return nil, err
+	}
+
+	// updating review resource
+	updR, err := db.EditReview(ctx, srv.dbClient, req.GetReview().GetId(), req.GetReview().GetFirstName(),
+		req.GetReview().GetLastName(), req.GetReview().GetReviewText(), req.GetReview().GetRating())
+	if err != nil {
+		return nil, err
+	}
+
+	return &apiv1.EditReviewResponse{
+		Review: ConvertReviewResourceToProtobuf(updR),
+	}, nil
+}
+
+// DeleteReview removes specified Review resource from the DB.
+func (srv *server) DeleteReview(ctx context.Context, req *apiv1.DeleteReviewRequest) error {
+	zlog.Info().Msgf("Deleting review (%s)", req.GetId())
+	// sanity check
+	if req.GetId() == "" {
+		err := fmt.Errorf("review ID is not specified")
+		zlog.Error().Err(err).Msg("Failed to delete review")
+		return err
+	}
+
+	// removing review resource
+	err := db.DeleteReviewByID(ctx, srv.dbClient, req.GetId())
+	if err != nil {
+		return err
+	}
+	return nil
+}
