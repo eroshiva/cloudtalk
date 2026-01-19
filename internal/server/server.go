@@ -81,7 +81,7 @@ func serve(grpcAddress, httpAddress string, dbClient *ent.Client, wg *sync.WaitG
 
 	// starting reverse proxy
 	wg.Go(func() {
-		startReverseProxy(grpcAddress, httpAddress, wg, grpcReadyChan, reverseProxyReadyChan, reverseProxyTermChan)
+		startReverseProxy(grpcAddress, httpAddress, grpcReadyChan, reverseProxyReadyChan, reverseProxyTermChan)
 	})
 
 	// handle termination signals
@@ -93,7 +93,7 @@ func serve(grpcAddress, httpAddress string, dbClient *ent.Client, wg *sync.WaitG
 }
 
 // startReverseProxy starts the gRPC reverse proxy server which is connected to the HTTP handler.
-func startReverseProxy(grpcServerAddress, httpServerAddress string, wg *sync.WaitGroup, grocReadyChan, reverseProxyReadyChan, reverseProxyTermChan chan bool) {
+func startReverseProxy(grpcServerAddress, httpServerAddress string, grocReadyChan, reverseProxyReadyChan, reverseProxyTermChan chan bool) {
 	// waiting for the gRPC server to start first
 	<-grocReadyChan
 	zlog.Info().Msg("Starting reverse HTTP proxy")
