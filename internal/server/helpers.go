@@ -40,13 +40,16 @@ func DeleteProductRequest(id string) *apiv1.DeleteProductRequest {
 }
 
 // CreateReviewRequest is a wrapper for CreateReviewRequest struct.
-func CreateReviewRequest(name, lastName, reviewText string, rating int32) *apiv1.CreateReviewRequest {
+func CreateReviewRequest(name, lastName, reviewText string, rating int32, productID string) *apiv1.CreateReviewRequest {
 	return &apiv1.CreateReviewRequest{
 		Review: &apiv1.Review{
 			FirstName:  name,
 			LastName:   lastName,
 			ReviewText: reviewText,
 			Rating:     rating,
+			Product: &apiv1.Product{
+				Id: productID,
+			},
 		},
 	}
 }

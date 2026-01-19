@@ -178,7 +178,7 @@ func TestGetProductByID(t *testing.T) {
 	assert.Equal(t, productPrice1, product1.GetProduct().GetPrice())
 
 	// retrieving product #2 back by its ID
-	product2, err := grpcClient.GetProductByID(ctx, server.GetProductByIDRequest(res1.GetProduct().GetId()))
+	product2, err := grpcClient.GetProductByID(ctx, server.GetProductByIDRequest(res2.GetProduct().GetId()))
 	require.NoError(t, err)
 	require.NotNil(t, product2)
 	require.NotNil(t, product2.GetProduct())
@@ -231,7 +231,7 @@ func TestListProducts(t *testing.T) {
 	require.NotNil(t, products)
 	// there is no reliable way to assert precise number of products in the system, because other tests concurrently add/remove other product resources.
 	// at least two products added inside this test should be in the system in any case.
-	assert.Greater(t, len(products.Products), 2)
+	assert.GreaterOrEqual(t, len(products.Products), 2)
 }
 
 func TestCreateReview(t *testing.T) {
@@ -256,7 +256,7 @@ func TestCreateReview(t *testing.T) {
 	assert.Equal(t, productPrice1, res1.GetProduct().GetPrice())
 
 	// creating review
-	revReq1 := server.CreateReviewRequest(reviewer1Name, reviewer1LastName, reviewer1Text, reviewer1Rating)
+	revReq1 := server.CreateReviewRequest(reviewer1Name, reviewer1LastName, reviewer1Text, reviewer1Rating, res1.GetProduct().GetId())
 	rev1, err := grpcClient.CreateReview(ctx, revReq1)
 	require.NoError(t, err)
 	require.NotNil(t, rev1)
@@ -268,7 +268,7 @@ func TestCreateReview(t *testing.T) {
 	assert.Equal(t, reviewer1Name, rev1.GetReview().GetFirstName())
 	assert.Equal(t, reviewer1LastName, rev1.GetReview().GetLastName())
 	assert.Equal(t, reviewer1Text, rev1.GetReview().GetReviewText())
-	assert.Equal(t, reviewer1Rating, rev1.GetReview().GetRating())
+	assert.Equal(t, int32(reviewer1Rating), rev1.GetReview().GetRating())
 
 	// retrieving Product from the system - should contain one review
 	product1, err := grpcClient.GetProductByID(ctx, server.GetProductByIDRequest(res1.GetProduct().GetId()))
@@ -281,7 +281,7 @@ func TestCreateReview(t *testing.T) {
 	assert.Equal(t, 1, len(product1.GetProduct().GetReviews()))
 
 	// adding another review
-	revReq2 := server.CreateReviewRequest(reviewer2Name, reviewer2LastName, reviewer2Text, reviewer2Rating)
+	revReq2 := server.CreateReviewRequest(reviewer2Name, reviewer2LastName, reviewer2Text, reviewer2Rating, res1.GetProduct().GetId())
 	rev2, err := grpcClient.CreateReview(ctx, revReq2)
 	require.NoError(t, err)
 	require.NotNil(t, rev2)
@@ -293,7 +293,7 @@ func TestCreateReview(t *testing.T) {
 	assert.Equal(t, reviewer2Name, rev2.GetReview().GetFirstName())
 	assert.Equal(t, reviewer2LastName, rev2.GetReview().GetLastName())
 	assert.Equal(t, reviewer2Text, rev2.GetReview().GetReviewText())
-	assert.Equal(t, reviewer2Rating, rev2.GetReview().GetRating())
+	assert.Equal(t, int32(reviewer2Rating), rev2.GetReview().GetRating())
 
 	// retrieving Product from the system - should contain two reviews
 	product1, err = grpcClient.GetProductByID(ctx, server.GetProductByIDRequest(res1.GetProduct().GetId()))
@@ -328,7 +328,7 @@ func TestGetReviewsByProductID(t *testing.T) {
 	assert.Equal(t, productPrice1, res1.GetProduct().GetPrice())
 
 	// creating review
-	revReq1 := server.CreateReviewRequest(reviewer1Name, reviewer1LastName, reviewer1Text, reviewer1Rating)
+	revReq1 := server.CreateReviewRequest(reviewer1Name, reviewer1LastName, reviewer1Text, reviewer1Rating, res1.GetProduct().GetId())
 	rev1, err := grpcClient.CreateReview(ctx, revReq1)
 	require.NoError(t, err)
 	require.NotNil(t, rev1)
@@ -339,7 +339,7 @@ func TestGetReviewsByProductID(t *testing.T) {
 	})
 
 	// adding another review
-	revReq2 := server.CreateReviewRequest(reviewer2Name, reviewer2LastName, reviewer2Text, reviewer2Rating)
+	revReq2 := server.CreateReviewRequest(reviewer2Name, reviewer2LastName, reviewer2Text, reviewer2Rating, res1.GetProduct().GetId())
 	rev2, err := grpcClient.CreateReview(ctx, revReq2)
 	require.NoError(t, err)
 	require.NotNil(t, rev2)
@@ -350,7 +350,7 @@ func TestGetReviewsByProductID(t *testing.T) {
 	})
 
 	// adding one more review
-	revReq3 := server.CreateReviewRequest(reviewer3Name, reviewer3LastName, reviewer3Text, reviewer3Rating)
+	revReq3 := server.CreateReviewRequest(reviewer3Name, reviewer3LastName, reviewer3Text, reviewer3Rating, res1.GetProduct().GetId())
 	rev3, err := grpcClient.CreateReview(ctx, revReq3)
 	require.NoError(t, err)
 	require.NotNil(t, rev3)
@@ -364,7 +364,7 @@ func TestGetReviewsByProductID(t *testing.T) {
 	reviews, err := grpcClient.GetReviewsByProductID(ctx, server.GetReviewsByProductIDRequest(res1.GetProduct().GetId()))
 	require.NoError(t, err)
 	require.NotNil(t, reviews)
-	assert.Len(t, reviews, 3) // making sure there are precisely 3 reviews assigned to this product
+	assert.Len(t, reviews.GetReviews(), 3) // making sure there are precisely 3 reviews assigned to this product
 }
 
 func TestEditReview(t *testing.T) {
@@ -389,7 +389,7 @@ func TestEditReview(t *testing.T) {
 	assert.Equal(t, productPrice1, res1.GetProduct().GetPrice())
 
 	// creating review
-	revReq1 := server.CreateReviewRequest(reviewer1Name, reviewer1LastName, reviewer1Text, reviewer1Rating)
+	revReq1 := server.CreateReviewRequest(reviewer1Name, reviewer1LastName, reviewer1Text, reviewer1Rating, res1.GetProduct().GetId())
 	rev1, err := grpcClient.CreateReview(ctx, revReq1)
 	require.NoError(t, err)
 	require.NotNil(t, rev1)
@@ -400,12 +400,12 @@ func TestEditReview(t *testing.T) {
 	})
 
 	// editing the review's text
-	editReq := server.EditReviewRequest(revReq1.GetReview().GetId(), "", "", reviewer2Text, reviewer2Rating)
+	editReq := server.EditReviewRequest(rev1.GetReview().GetId(), "", "", reviewer2Text, reviewer2Rating)
 	editResp, err := grpcClient.EditReview(ctx, editReq)
 	require.NoError(t, err)
 	require.NotNil(t, editResp)
 	assert.Equal(t, reviewer1Name, editResp.GetReview().GetFirstName())
 	assert.Equal(t, reviewer1LastName, editResp.GetReview().GetLastName())
 	assert.Equal(t, reviewer2Text, editResp.GetReview().GetReviewText())
-	assert.Equal(t, reviewer2Rating, editResp.GetReview().GetRating())
+	assert.Equal(t, int32(reviewer2Rating), editResp.GetReview().GetRating())
 }
