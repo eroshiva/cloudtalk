@@ -6,6 +6,7 @@ import (
 
 	apiv1 "github.com/eroshiva/cloudtalk/api/v1"
 	"github.com/eroshiva/cloudtalk/pkg/client/db"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // CreateProduct creates a Product resource in the DB.
@@ -84,25 +85,25 @@ func (srv *server) EditProduct(ctx context.Context, req *apiv1.EditProductReques
 }
 
 // DeleteProduct deletes Product resource from the DB.
-func (srv *server) DeleteProduct(ctx context.Context, req *apiv1.DeleteProductRequest) error {
+func (srv *server) DeleteProduct(ctx context.Context, req *apiv1.DeleteProductRequest) (*emptypb.Empty, error) {
 	zlog.Info().Msgf("Deleting product (%s)", req.GetId())
 	// sanity check
 	if req.GetId() == "" {
 		err := fmt.Errorf("product ID is not specified")
 		zlog.Error().Err(err).Msg("Failed to delete product")
-		return err
+		return nil, err
 	}
 
 	// deleting product from DB
 	err := db.DeleteProductByID(ctx, srv.dbClient, req.GetId())
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return &emptypb.Empty{}, nil
 }
 
 // ListProducts lists all Product resources available in the DB.
-func (srv *server) ListProducts(ctx context.Context) ([]*apiv1.Product, error) {
+func (srv *server) ListProducts(ctx context.Context, _ *emptypb.Empty) ([]*apiv1.Product, error) {
 	zlog.Info().Msgf("Listing all products")
 	ps, err := db.ListProducts(ctx, srv.dbClient)
 	if err != nil {
@@ -203,19 +204,19 @@ func (srv *server) EditReview(ctx context.Context, req *apiv1.EditReviewRequest)
 }
 
 // DeleteReview removes specified Review resource from the DB.
-func (srv *server) DeleteReview(ctx context.Context, req *apiv1.DeleteReviewRequest) error {
+func (srv *server) DeleteReview(ctx context.Context, req *apiv1.DeleteReviewRequest) (*emptypb.Empty, error) {
 	zlog.Info().Msgf("Deleting review (%s)", req.GetId())
 	// sanity check
 	if req.GetId() == "" {
 		err := fmt.Errorf("review ID is not specified")
 		zlog.Error().Err(err).Msg("Failed to delete review")
-		return err
+		return nil, err
 	}
 
 	// removing review resource
 	err := db.DeleteReviewByID(ctx, srv.dbClient, req.GetId())
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return &emptypb.Empty{}, nil
 }

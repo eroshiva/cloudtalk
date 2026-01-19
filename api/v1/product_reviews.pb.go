@@ -694,7 +694,7 @@ type Product struct {
 	Id            string    `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string    `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string    `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Price         string    `protobuf:"bytes,4,opt,name=price,proto3" json:"price,omitempty"` // this is to avoid floating point number precision issues
+	Price         string    `protobuf:"bytes,4,opt,name=price,proto3" json:"price,omitempty"` // this is to avoid floating point number precision issues, not in the scope of this task
 	Reviews       []*Review `protobuf:"bytes,5,rep,name=reviews,proto3" json:"reviews,omitempty"`
 	AverageRating string    `protobuf:"bytes,6,opt,name=average_rating,json=averageRating,proto3" json:"average_rating,omitempty"` // might not be part of the product
 	unknownFields protoimpl.UnknownFields

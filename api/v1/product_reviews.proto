@@ -149,7 +149,7 @@ message Product {
 
   string name = 2;
   string description = 3;
-  string price = 4; // this is to avoid floating point number precision issues
+  string price = 4; // this is to avoid floating point number precision issues, not in the scope of this task
   repeated Review reviews = 5 [(ent.edge) = {}];
   string average_rating = 6; // might not be part of the product
 }

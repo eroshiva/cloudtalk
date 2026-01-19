@@ -463,7 +463,7 @@
         },
         "price": {
           "type": "string",
-          "title": "this is to avoid floating point number precision issues"
+          "title": "this is to avoid floating point number precision issues, not in the scope of this task"
         },
         "reviews": {
           "type": "array",
