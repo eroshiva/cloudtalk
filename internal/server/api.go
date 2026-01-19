@@ -103,7 +103,7 @@ func (srv *server) DeleteProduct(ctx context.Context, req *apiv1.DeleteProductRe
 }
 
 // ListProducts lists all Product resources available in the DB.
-func (srv *server) ListProducts(ctx context.Context, _ *emptypb.Empty) ([]*apiv1.Product, error) {
+func (srv *server) ListProducts(ctx context.Context, _ *emptypb.Empty) (*apiv1.ListProductsResponse, error) {
 	zlog.Info().Msgf("Listing all products")
 	ps, err := db.ListProducts(ctx, srv.dbClient)
 	if err != nil {
@@ -114,7 +114,9 @@ func (srv *server) ListProducts(ctx context.Context, _ *emptypb.Empty) ([]*apiv1
 	for _, p := range ps {
 		resp = append(resp, ConvertProductResourceToProtobuf(p))
 	}
-	return resp, nil
+	return &apiv1.ListProductsResponse{
+		Products: resp,
+	}, nil
 }
 
 // CreateReview creates Review resource in the DB. Enough to specify only Product ID in the Product field.
@@ -131,8 +133,8 @@ func (srv *server) CreateReview(ctx context.Context, req *apiv1.CreateReviewRequ
 		zlog.Error().Err(err).Msg("Failed to create review")
 		return nil, err
 	}
-	if !(req.GetReview().GetRating() >= 1 && req.GetReview().GetRating() <= 5) {
-		err := fmt.Errorf("reviewer's rating is out of boundaries")
+	if req.GetReview().GetRating() < 1 || req.GetReview().GetRating() > 5 {
+		err := fmt.Errorf("reviewer's rating is out of range")
 		zlog.Error().Err(err).Msg("Failed to create review")
 		return nil, err
 	}
@@ -176,7 +178,7 @@ func (srv *server) GetReviewsByProductID(ctx context.Context, req *apiv1.GetRevi
 	}, nil
 }
 
-// EditReview updates specified fields of the Review resource in teh DB.
+// EditReview updates specified fields of the Review resource in the DB.
 func (srv *server) EditReview(ctx context.Context, req *apiv1.EditReviewRequest) (*apiv1.EditReviewResponse, error) {
 	zlog.Info().Msgf("Editing review (%s)", req.GetReview().GetId())
 	// sanity check

@@ -45,12 +45,10 @@ func SetupFull(grpcServerAddress, httpServerAddress string) (*ent.Client, apiv1.
 	readyChan := make(chan bool, 1)
 	reverseProxyReadyChan := make(chan bool, 1)
 	reverseProxyTermChan := make(chan bool, 1)
-	wg.Add(1)
-	go func() {
-		wg.Add(1) //nolint:staticcheck
+
+	wg.Go(func() {
 		server.StartServer(grpcServerAddress, httpServerAddress, client, wg, termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan)
-		wg.Done()
-	}()
+	})
 	// Waiting until both servers are up and running
 	<-readyChan
 	<-reverseProxyReadyChan
