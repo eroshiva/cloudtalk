@@ -158,7 +158,7 @@ func DeleteProductByID(ctx context.Context, client *ent.Client, id string) error
 // with the rollback error if occurred.
 func rollback(tx *ent.Tx, err error) error {
 	if rerr := tx.Rollback(); rerr != nil {
-		err = fmt.Errorf("%w: %v", err, rerr)
+		err = fmt.Errorf("%w: %w", err, rerr)
 		zlog.Error().Err(err).Msgf("Failed to rollback transaction")
 	}
 	return err

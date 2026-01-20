@@ -484,5 +484,4 @@ func TestAverageRatingComputations(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, product)
 	t.Logf("Average rating is %.2f\n", product.GetProduct().GetAverageRating())
-
 }

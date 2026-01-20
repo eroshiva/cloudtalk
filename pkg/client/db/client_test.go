@@ -194,7 +194,8 @@ func TestLockingOnConcurrentReviewCreation(t *testing.T) {
 		defer wg.Done()
 		tx, err := client.Tx(ctx)
 		require.NoError(t, err)
-		defer tx.Rollback() // ensure rollback on error (if happens)
+		// ensure rollback on error (if happens)
+		defer tx.Rollback() //nolint:errcheck // this code doesn't go production
 
 		// Acquire the lock
 		_, err = tx.Product.Query().Where(product.ID(p.ID)).ForUpdate().Only(ctx)
