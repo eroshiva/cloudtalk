@@ -31,20 +31,21 @@ const (
 // ProductMutation represents an operation that mutates the Product nodes in the graph.
 type ProductMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *string
-	name           *string
-	description    *string
-	price          *string
-	average_rating *string
-	clearedFields  map[string]struct{}
-	reviews        map[string]struct{}
-	removedreviews map[string]struct{}
-	clearedreviews bool
-	done           bool
-	oldValue       func(context.Context) (*Product, error)
-	predicates     []predicate.Product
+	op                Op
+	typ               string
+	id                *string
+	name              *string
+	description       *string
+	price             *string
+	average_rating    *float64
+	addaverage_rating *float64
+	clearedFields     map[string]struct{}
+	reviews           map[string]struct{}
+	removedreviews    map[string]struct{}
+	clearedreviews    bool
+	done              bool
+	oldValue          func(context.Context) (*Product, error)
+	predicates        []predicate.Product
 }
 
 var _ ent.Mutation = (*ProductMutation)(nil)
@@ -260,12 +261,13 @@ func (m *ProductMutation) ResetPrice() {
 }
 
 // SetAverageRating sets the "average_rating" field.
-func (m *ProductMutation) SetAverageRating(s string) {
-	m.average_rating = &s
+func (m *ProductMutation) SetAverageRating(f float64) {
+	m.average_rating = &f
+	m.addaverage_rating = nil
 }
 
 // AverageRating returns the value of the "average_rating" field in the mutation.
-func (m *ProductMutation) AverageRating() (r string, exists bool) {
+func (m *ProductMutation) AverageRating() (r float64, exists bool) {
 	v := m.average_rating
 	if v == nil {
 		return
@@ -276,7 +278,7 @@ func (m *ProductMutation) AverageRating() (r string, exists bool) {
 // OldAverageRating returns the old "average_rating" field's value of the Product entity.
 // If the Product object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProductMutation) OldAverageRating(ctx context.Context) (v string, err error) {
+func (m *ProductMutation) OldAverageRating(ctx context.Context) (v float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAverageRating is only allowed on UpdateOne operations")
 	}
@@ -290,9 +292,28 @@ func (m *ProductMutation) OldAverageRating(ctx context.Context) (v string, err e
 	return oldValue.AverageRating, nil
 }
 
+// AddAverageRating adds f to the "average_rating" field.
+func (m *ProductMutation) AddAverageRating(f float64) {
+	if m.addaverage_rating != nil {
+		*m.addaverage_rating += f
+	} else {
+		m.addaverage_rating = &f
+	}
+}
+
+// AddedAverageRating returns the value that was added to the "average_rating" field in this mutation.
+func (m *ProductMutation) AddedAverageRating() (r float64, exists bool) {
+	v := m.addaverage_rating
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
 // ResetAverageRating resets all changes to the "average_rating" field.
 func (m *ProductMutation) ResetAverageRating() {
 	m.average_rating = nil
+	m.addaverage_rating = nil
 }
 
 // AddReviewIDs adds the "reviews" edge to the Review entity by ids.
@@ -460,7 +481,7 @@ func (m *ProductMutation) SetField(name string, value ent.Value) error {
 		m.SetPrice(v)
 		return nil
 	case product.FieldAverageRating:
-		v, ok := value.(string)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -473,13 +494,21 @@ func (m *ProductMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *ProductMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addaverage_rating != nil {
+		fields = append(fields, product.FieldAverageRating)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *ProductMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case product.FieldAverageRating:
+		return m.AddedAverageRating()
+	}
 	return nil, false
 }
 
@@ -488,6 +517,13 @@ func (m *ProductMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ProductMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case product.FieldAverageRating:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAverageRating(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Product numeric field %s", name)
 }

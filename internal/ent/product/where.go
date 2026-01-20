@@ -79,7 +79,7 @@ func Price(v string) predicate.Product {
 }
 
 // AverageRating applies equality check predicate on the "average_rating" field. It's identical to AverageRatingEQ.
-func AverageRating(v string) predicate.Product {
+func AverageRating(v float64) predicate.Product {
 	return predicate.Product(sql.FieldEQ(FieldAverageRating, v))
 }
 
@@ -279,68 +279,43 @@ func PriceContainsFold(v string) predicate.Product {
 }
 
 // AverageRatingEQ applies the EQ predicate on the "average_rating" field.
-func AverageRatingEQ(v string) predicate.Product {
+func AverageRatingEQ(v float64) predicate.Product {
 	return predicate.Product(sql.FieldEQ(FieldAverageRating, v))
 }
 
 // AverageRatingNEQ applies the NEQ predicate on the "average_rating" field.
-func AverageRatingNEQ(v string) predicate.Product {
+func AverageRatingNEQ(v float64) predicate.Product {
 	return predicate.Product(sql.FieldNEQ(FieldAverageRating, v))
 }
 
 // AverageRatingIn applies the In predicate on the "average_rating" field.
-func AverageRatingIn(vs ...string) predicate.Product {
+func AverageRatingIn(vs ...float64) predicate.Product {
 	return predicate.Product(sql.FieldIn(FieldAverageRating, vs...))
 }
 
 // AverageRatingNotIn applies the NotIn predicate on the "average_rating" field.
-func AverageRatingNotIn(vs ...string) predicate.Product {
+func AverageRatingNotIn(vs ...float64) predicate.Product {
 	return predicate.Product(sql.FieldNotIn(FieldAverageRating, vs...))
 }
 
 // AverageRatingGT applies the GT predicate on the "average_rating" field.
-func AverageRatingGT(v string) predicate.Product {
+func AverageRatingGT(v float64) predicate.Product {
 	return predicate.Product(sql.FieldGT(FieldAverageRating, v))
 }
 
 // AverageRatingGTE applies the GTE predicate on the "average_rating" field.
-func AverageRatingGTE(v string) predicate.Product {
+func AverageRatingGTE(v float64) predicate.Product {
 	return predicate.Product(sql.FieldGTE(FieldAverageRating, v))
 }
 
 // AverageRatingLT applies the LT predicate on the "average_rating" field.
-func AverageRatingLT(v string) predicate.Product {
+func AverageRatingLT(v float64) predicate.Product {
 	return predicate.Product(sql.FieldLT(FieldAverageRating, v))
 }
 
 // AverageRatingLTE applies the LTE predicate on the "average_rating" field.
-func AverageRatingLTE(v string) predicate.Product {
+func AverageRatingLTE(v float64) predicate.Product {
 	return predicate.Product(sql.FieldLTE(FieldAverageRating, v))
-}
-
-// AverageRatingContains applies the Contains predicate on the "average_rating" field.
-func AverageRatingContains(v string) predicate.Product {
-	return predicate.Product(sql.FieldContains(FieldAverageRating, v))
-}
-
-// AverageRatingHasPrefix applies the HasPrefix predicate on the "average_rating" field.
-func AverageRatingHasPrefix(v string) predicate.Product {
-	return predicate.Product(sql.FieldHasPrefix(FieldAverageRating, v))
-}
-
-// AverageRatingHasSuffix applies the HasSuffix predicate on the "average_rating" field.
-func AverageRatingHasSuffix(v string) predicate.Product {
-	return predicate.Product(sql.FieldHasSuffix(FieldAverageRating, v))
-}
-
-// AverageRatingEqualFold applies the EqualFold predicate on the "average_rating" field.
-func AverageRatingEqualFold(v string) predicate.Product {
-	return predicate.Product(sql.FieldEqualFold(FieldAverageRating, v))
-}
-
-// AverageRatingContainsFold applies the ContainsFold predicate on the "average_rating" field.
-func AverageRatingContainsFold(v string) predicate.Product {
-	return predicate.Product(sql.FieldContainsFold(FieldAverageRating, v))
 }
 
 // HasReviews applies the HasEdge predicate on the "reviews" edge.

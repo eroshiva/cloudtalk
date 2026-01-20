@@ -23,7 +23,7 @@ type Product struct {
 	// Price holds the value of the "price" field.
 	Price string `json:"price,omitempty"`
 	// AverageRating holds the value of the "average_rating" field.
-	AverageRating string `json:"average_rating,omitempty"`
+	AverageRating float64 `json:"average_rating,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProductQuery when eager-loading is set.
 	Edges        ProductEdges `json:"edges"`
@@ -53,7 +53,9 @@ func (*Product) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case product.FieldID, product.FieldName, product.FieldDescription, product.FieldPrice, product.FieldAverageRating:
+		case product.FieldAverageRating:
+			values[i] = new(sql.NullFloat64)
+		case product.FieldID, product.FieldName, product.FieldDescription, product.FieldPrice:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -95,10 +97,10 @@ func (_m *Product) assignValues(columns []string, values []any) error {
 				_m.Price = value.String
 			}
 		case product.FieldAverageRating:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field average_rating", values[i])
 			} else if value.Valid {
-				_m.AverageRating = value.String
+				_m.AverageRating = value.Float64
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -151,7 +153,7 @@ func (_m *Product) String() string {
 	builder.WriteString(_m.Price)
 	builder.WriteString(", ")
 	builder.WriteString("average_rating=")
-	builder.WriteString(_m.AverageRating)
+	builder.WriteString(fmt.Sprintf("%v", _m.AverageRating))
 	builder.WriteByte(')')
 	return builder.String()
 }

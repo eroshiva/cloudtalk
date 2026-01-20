@@ -14,7 +14,7 @@ var (
 		{Name: "name", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
 		{Name: "price", Type: field.TypeString},
-		{Name: "average_rating", Type: field.TypeString},
+		{Name: "average_rating", Type: field.TypeFloat64},
 	}
 	// ProductsTable holds the schema information for the "products" table.
 	ProductsTable = &schema.Table{
