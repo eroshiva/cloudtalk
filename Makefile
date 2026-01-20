@@ -13,6 +13,7 @@ PROTOC_GEN_ENT_VERSION := v0.7.0
 KIND_VERSION := v0.31.0
 DOCKER_POSTGRESQL_NAME := product-reviews-postgresql
 DOCKER_POSTGRESQL_VERSION := 15
+DOCKER_RABBITMQ_NAME := rabbitmq
 
 KUBE_NAMESPACE := product-reviews
 
@@ -79,7 +80,7 @@ migration-hash: ## Hashes the atlas checksum to correspond to the migration
 migration-generate: ## Generate DB migration "make migration-generate MIGRATION=<migration-name>"
 	@if test -z $(MIGRATION); then echo "Please specify migration name" && exit 1; fi
 	$(MAKE) db-start
-	sleep 5;
+	sleep 5; ## Letting some time for PostgreSQL to start
 	atlas migrate diff $(MIGRATION) \
   		--dir "file://internal/ent/migrate/migrations" \
   		--to "ent://internal/ent/schema" \
@@ -92,6 +93,14 @@ db-start: ## Starts PostgreSQL Docker instance with uploaded migration
 
 db-stop: ## Stops PostgreSQL Docker instance
 	docker stop ${DOCKER_POSTGRESQL_NAME}
+
+rabbitmq-start: ## Starts RabbitMQ Docker instance
+	- $(MAKE) rabbitmq-stop
+	sleep 5; ## Letting some time for RabbitMQ to start
+	docker run --name ${DOCKER_RABBITMQ_NAME} -p 5672:5672 -p 15672:15672 --rm -d rabbitmq:latest
+
+rabbitmq-stop: ## Stops RabbitMQ Docker instance
+	docker stop ${DOCKER_RABBITMQ_NAME}
 
 go-linters-install: ## Install linters locally for verification
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin ${GOLANGCI_LINTERS_VERSION}
@@ -108,16 +117,20 @@ govulncheck: govulncheck-install ## Runs govulncheck on the current codebase
 go-vet: ## Searching for suspicious constructs in Go code
 	go vet ./...
 
-go-test: bring-up-db ## Run unit tests present in the codebase
+go-test: rabbitmq-start bring-up-db ## Run unit tests present in the codebase
 	mkdir -p tmp
 	go test -coverprofile=./tmp/test-cover.out -race ./...
 	$(MAKE) db-stop
+	$(MAKE) rabbitmq-stop
 
 test-ci: generate buf-lint build go-vet govulncheck go-linters go-test ## Test the whole codebase (mimics CI/CD)
 
 run: go-tidy build-product-reviews bring-up-db ## Runs compiled network device monitoring service
 	sleep 5;
 	./build/_output/${POC_NAME}
+
+consume: ## Runs listener on RabbitMQ channel
+	go run cmd/helpers/consumer.go
 
 run-rest-list-products: ## Runs CURL command and lists all products
 	curl -v http://localhost:50052/v1/product/all

@@ -6,6 +6,7 @@ import (
 
 	apiv1 "github.com/eroshiva/cloudtalk/api/v1"
 	"github.com/eroshiva/cloudtalk/pkg/client/db"
+	"github.com/eroshiva/cloudtalk/pkg/rabbitmq"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -147,6 +148,13 @@ func (srv *server) CreateReview(ctx context.Context, req *apiv1.CreateReviewRequ
 		return nil, err
 	}
 
+	// publishing event that review was created
+	err = rabbitmq.PublishMessage(ctx, srv.rabbitMQChannel, ComposeEventOnReviewChange("created",
+		r.Rating, r.FirstName, r.LastName, req.GetReview().GetProduct().GetId()))
+	if err != nil {
+		return nil, err
+	}
+
 	return &apiv1.CreateReviewResponse{
 		Review: ConvertReviewResourceToProtobuf(r),
 	}, nil
@@ -200,6 +208,13 @@ func (srv *server) EditReview(ctx context.Context, req *apiv1.EditReviewRequest)
 		return nil, err
 	}
 
+	// publishing event that review was modified
+	err = rabbitmq.PublishMessage(ctx, srv.rabbitMQChannel, ComposeEventOnReviewChange("modified", updR.Rating,
+		updR.FirstName, updR.LastName, updR.Edges.Product.ID))
+	if err != nil {
+		return nil, err
+	}
+
 	return &apiv1.EditReviewResponse{
 		Review: ConvertReviewResourceToProtobuf(updR),
 	}, nil
@@ -215,10 +230,25 @@ func (srv *server) DeleteReview(ctx context.Context, req *apiv1.DeleteReviewRequ
 		return nil, err
 	}
 
-	// removing review resource
-	err := db.DeleteReviewByID(ctx, srv.dbClient, req.GetId())
+	// Querying review first to get a fancy-published message - in favor of unified published messages structure.
+	// Normally, this should be brought to forum with colleagues and defined what precisely we want to publish on bus. My take - IDs are simple enough.
+	// For the sake of better visibility for this task leaving it this way.
+	r, err := db.GetReviewByID(ctx, srv.dbClient, req.GetId())
 	if err != nil {
 		return nil, err
 	}
+
+	// removing review resource
+	err = db.DeleteReviewByID(ctx, srv.dbClient, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	// publishing event that review was deleted
+	err = rabbitmq.PublishMessage(ctx, srv.rabbitMQChannel, ComposeEventOnReviewChange("deleted", r.Rating, r.FirstName, r.LastName, r.Edges.Product.ID))
+	if err != nil {
+		return nil, err
+	}
+
 	return &emptypb.Empty{}, nil
 }

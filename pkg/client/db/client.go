@@ -202,7 +202,7 @@ func GetReviewByID(ctx context.Context, client *ent.Client, id string) (*ent.Rev
 	zlog.Debug().Msgf("Retrieving review by ID (%s)", id)
 	r, err := client.Review.Query().
 		Where(review.ID(id)).
-		WithProduct(). // eager-loading edge
+		WithProduct(). // eager-loading PRODUCT edge
 		Only(ctx)
 	if err != nil {
 		zlog.Err(err).Msgf("Failed to retrieve review by ID (%s)", id)
@@ -250,7 +250,7 @@ func EditReview(ctx context.Context, client *ent.Client, id string, name, lastNa
 		SetFirstName(r.FirstName).
 		SetLastName(r.LastName).
 		SetReviewText(r.ReviewText).
-		SetRating(rating).
+		SetRating(r.Rating).
 		Save(ctx)
 	if err != nil {
 		zlog.Err(err).Msgf("Failed to edit review")

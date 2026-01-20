@@ -9,6 +9,8 @@ import (
 	"github.com/eroshiva/cloudtalk/internal/ent"
 	"github.com/eroshiva/cloudtalk/internal/server"
 	"github.com/eroshiva/cloudtalk/pkg/client/db"
+	"github.com/eroshiva/cloudtalk/pkg/rabbitmq"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -26,7 +28,7 @@ func Setup() (*ent.Client, error) {
 }
 
 // SetupFull function sets up testing environment.It uploads schema to the DB and starts gRPC and HTTP reverse proxy servers.
-func SetupFull(grpcServerAddress, httpServerAddress string) (*ent.Client, apiv1.ProductReviewsServiceClient, *sync.WaitGroup, chan bool, chan bool, error) {
+func SetupFull(grpcServerAddress, httpServerAddress string) (*ent.Client, *amqp.Connection, *amqp.Channel, apiv1.ProductReviewsServiceClient, *sync.WaitGroup, chan bool, chan bool, error) {
 	if grpcServerAddress == "" {
 		grpcServerAddress = defaultGRPCTestServerAddress
 	}
@@ -37,7 +39,12 @@ func SetupFull(grpcServerAddress, httpServerAddress string) (*ent.Client, apiv1.
 
 	client, err := db.RunSchemaMigration()
 	if err != nil {
-		return nil, nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, nil, nil, err
+	}
+
+	rabbitMQConn, rabbitMQCh, err := rabbitmq.Connect()
+	if err != nil {
+		return nil, nil, nil, nil, nil, nil, nil, err
 	}
 
 	wg := &sync.WaitGroup{}
@@ -47,7 +54,7 @@ func SetupFull(grpcServerAddress, httpServerAddress string) (*ent.Client, apiv1.
 	reverseProxyTermChan := make(chan bool, 1)
 
 	wg.Go(func() {
-		server.StartServer(grpcServerAddress, httpServerAddress, client, wg, termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan)
+		server.StartServer(grpcServerAddress, httpServerAddress, client, rabbitMQCh, wg, termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan)
 	})
 	// Waiting until both servers are up and running
 	<-readyChan
@@ -56,21 +63,24 @@ func SetupFull(grpcServerAddress, httpServerAddress string) (*ent.Client, apiv1.
 	// creating gRPC testing client
 	conn, err := grpc.NewClient(grpcServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return nil, nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, nil, nil, err
 	}
 
 	grpcClient := apiv1.NewProductReviewsServiceClient(conn)
 
-	return client, grpcClient, wg, termChan, reverseProxyTermChan, nil
+	return client, rabbitMQConn, rabbitMQCh, grpcClient, wg, termChan, reverseProxyTermChan, nil
 }
 
 // TeardownFull function tears down testing suite including DB connection, gRPC and HTTP reverse proxy servers.
-func TeardownFull(client *ent.Client, wg *sync.WaitGroup, termChan, reverseProxyTermChan chan bool) {
+func TeardownFull(client *ent.Client, rabbitMQConn *amqp.Connection, rabbitMQChan *amqp.Channel, wg *sync.WaitGroup, termChan, reverseProxyTermChan chan bool) {
 	close(termChan)
 	close(reverseProxyTermChan)
 	err := db.GracefullyCloseDBClient(client)
 	if err != nil {
 		panic(err)
 	}
+	rabbitmq.CloseConnection(rabbitMQConn)
+	rabbitmq.CloseChannel(rabbitMQChan)
+
 	wg.Wait()
 }

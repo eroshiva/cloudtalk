@@ -12,6 +12,7 @@ import (
 	"github.com/eroshiva/cloudtalk/internal/ent"
 	"github.com/eroshiva/cloudtalk/pkg/logger"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -33,6 +34,8 @@ type server struct {
 
 	// client for interactions with DB
 	dbClient *ent.Client
+	// client for pushing events to RabbitMQ
+	rabbitMQChannel *amqp.Channel
 }
 
 // Options structure defines server's features enablement.
@@ -46,8 +49,8 @@ func getServerOptions(_ *Options) ([]grpc.ServerOption, error) {
 	return optionsList, nil
 }
 
-func serve(grpcAddress, httpAddress string, dbClient *ent.Client, wg *sync.WaitGroup, serverOptions []grpc.ServerOption,
-	termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan chan bool,
+func serve(grpcAddress, httpAddress string, dbClient *ent.Client, rabbitMQ *amqp.Channel, wg *sync.WaitGroup,
+	serverOptions []grpc.ServerOption, termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan chan bool,
 ) {
 	grpcReadyChan := make(chan bool, 1)
 	lis, err := net.Listen(tcpNetwork, grpcAddress)
@@ -59,7 +62,8 @@ func serve(grpcAddress, httpAddress string, dbClient *ent.Client, wg *sync.WaitG
 	s := grpc.NewServer(serverOptions...)
 
 	gRPCServer := &server{
-		dbClient: dbClient,
+		dbClient:        dbClient,
+		rabbitMQChannel: rabbitMQ,
 	}
 
 	// Register our server implementation with the gRPC server.
@@ -166,7 +170,9 @@ func GetHTTPServerAddress() string {
 }
 
 // StartServer function configures and brings up gRPC server.
-func StartServer(gRPCServerAddress, httpServerAddress string, dbClient *ent.Client, wg *sync.WaitGroup, termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan chan bool) {
+func StartServer(gRPCServerAddress, httpServerAddress string, dbClient *ent.Client, rabbitMQ *amqp.Channel,
+	wg *sync.WaitGroup, termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan chan bool,
+) {
 	zlog.Info().Msgf("Starting gRPC server...")
 
 	// get server options
@@ -176,5 +182,5 @@ func StartServer(gRPCServerAddress, httpServerAddress string, dbClient *ent.Clie
 	}
 
 	// start server
-	serve(gRPCServerAddress, httpServerAddress, dbClient, wg, serverOptions, termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan)
+	serve(gRPCServerAddress, httpServerAddress, dbClient, rabbitMQ, wg, serverOptions, termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan)
 }
