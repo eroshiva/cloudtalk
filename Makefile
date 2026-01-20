@@ -13,6 +13,7 @@ PROTOC_GEN_ENT_VERSION := v0.7.0
 KIND_VERSION := v0.31.0
 DOCKER_POSTGRESQL_NAME := product-reviews-postgresql
 DOCKER_POSTGRESQL_VERSION := 15
+DOCKER_RABBITMQ_NAME := rabbitmq
 
 KUBE_NAMESPACE := product-reviews
 
@@ -93,6 +94,13 @@ db-start: ## Starts PostgreSQL Docker instance with uploaded migration
 db-stop: ## Stops PostgreSQL Docker instance
 	docker stop ${DOCKER_POSTGRESQL_NAME}
 
+rabbitmq-start: ## Starts RabbitMQ Docker instance
+	- $(MAKE) rabbitmq-stop
+	docker run --name ${DOCKER_RABBITMQ_NAME} -p 5672:5672 -p 15672:15672 --rm -d rabbitmq:latest
+
+rabbitmq-stop: ## Stops RabbitMQ Docker instance
+	docker stop ${DOCKER_RABBITMQ_NAME}
+
 go-linters-install: ## Install linters locally for verification
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin ${GOLANGCI_LINTERS_VERSION}
 
@@ -108,10 +116,11 @@ govulncheck: govulncheck-install ## Runs govulncheck on the current codebase
 go-vet: ## Searching for suspicious constructs in Go code
 	go vet ./...
 
-go-test: bring-up-db ## Run unit tests present in the codebase
+go-test: rabbitmq-start bring-up-db ## Run unit tests present in the codebase
 	mkdir -p tmp
 	go test -coverprofile=./tmp/test-cover.out -race ./...
 	$(MAKE) db-stop
+	$(MAKE) rabbitmq-stop
 
 test-ci: generate buf-lint build go-vet govulncheck go-linters go-test ## Test the whole codebase (mimics CI/CD)
 

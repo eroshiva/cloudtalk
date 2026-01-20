@@ -1,3 +1,4 @@
+// Package main is a main entry point for a consumer process.
 package main
 
 import (
@@ -24,7 +25,7 @@ func main() {
 
 	go func() {
 		for d := range msgs {
-			zlog.Info().Msgf("Received a message: %s", d.Body)
+			zlog.Info().Msgf("Received a message: '%s'", d.Body)
 		}
 	}()
 

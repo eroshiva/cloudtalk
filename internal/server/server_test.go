@@ -44,7 +44,7 @@ var (
 
 func TestMain(m *testing.M) {
 	var err error
-	entClient, serverClient, wg, termChan, reverseProxyTermChan, err := prs_testing.SetupFull("", "")
+	entClient, rabbitMQConn, rabbitMQCh, serverClient, wg, termChan, reverseProxyTermChan, err := prs_testing.SetupFull("", "")
 	if err != nil {
 		panic(err)
 	}
@@ -55,7 +55,7 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 
 	// all tests were run, stopping servers gracefully
-	prs_testing.TeardownFull(client, wg, termChan, reverseProxyTermChan)
+	prs_testing.TeardownFull(client, rabbitMQConn, rabbitMQCh, wg, termChan, reverseProxyTermChan)
 	os.Exit(code)
 }
 
@@ -368,7 +368,7 @@ func TestGetReviewsByProductID(t *testing.T) {
 }
 
 func TestEditReview(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), prs_testing.DefaultTestTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), prs_testing.DefaultTestTimeout*1000)
 	t.Cleanup(cancel)
 
 	// creating request

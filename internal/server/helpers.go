@@ -1,6 +1,11 @@
 package server
 
-import apiv1 "github.com/eroshiva/cloudtalk/api/v1"
+import (
+	"fmt"
+	"strings"
+
+	apiv1 "github.com/eroshiva/cloudtalk/api/v1"
+)
 
 // CreateProductRequest is a wrapper for CreateProductRequest struct.
 func CreateProductRequest(name, description, price string) *apiv1.CreateProductRequest {
@@ -79,4 +84,10 @@ func GetReviewsByProductIDRequest(id string) *apiv1.GetReviewsByProductIDRequest
 	return &apiv1.GetReviewsByProductIDRequest{
 		Id: id,
 	}
+}
+
+// ComposeEventOnReviewChange function composes a one-liner that is published to the RabbitMQ on any review event (addition, change, deletion).
+func ComposeEventOnReviewChange(action string, rating int32, name, lastName, productID string) string {
+	return fmt.Sprintf("%s: Review scoring %d from %s %s for product %s",
+		strings.ToUpper(action), rating, name, lastName, productID)
 }

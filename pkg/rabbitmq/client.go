@@ -1,3 +1,4 @@
+// Package rabbitmq implements means for communication with RabbitMQ.
 package rabbitmq
 
 import (
@@ -99,12 +100,8 @@ func CloseConnection(conn *amqp.Connection) {
 
 // PublishMessage publishes message to the RabbitMQ's channel.
 // For the sake of simplicity, only simple text messages are transmitted.
-func PublishMessage(ch *amqp.Channel, text string) error {
-	zlog.Info().Msgf("Publishing message to RabbitMQ")
-	// initialising context
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-	defer cancel()
-
+func PublishMessage(ctx context.Context, ch *amqp.Channel, text string) error {
+	zlog.Info().Msgf("Publishing message to RabbitMQ: '%s'", text)
 	// send out message to RabbitMQ
 	err := ch.PublishWithContext(ctx,
 		"",        // exchange
