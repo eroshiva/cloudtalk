@@ -128,6 +128,9 @@ run: go-tidy build-product-reviews bring-up-db ## Runs compiled network device m
 	sleep 5;
 	./build/_output/${POC_NAME}
 
+consume: ## Runs listener on RabbitMQ channel
+	go run cmd/helpers/consumer.go
+
 run-rest-list-products: ## Runs CURL command and lists all products
 	curl -v http://localhost:50052/v1/product/all
 
