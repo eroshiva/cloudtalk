@@ -168,7 +168,7 @@ func CreateReview(ctx context.Context, client *ent.Client, name, lastName, text 
 		return nil, err
 	}
 
-	zlog.Debug().Msgf("Creating review by %s %s for product with ID (%s)", name, lastName, product.ID)
+	zlog.Debug().Msgf("Creating review by %s %s for product with ID (%s)", name, lastName, productID)
 
 	// retrieving full Product resource first
 	p, err := GetProductByID(ctx, client, productID)
@@ -198,7 +198,7 @@ func CreateReview(ctx context.Context, client *ent.Client, name, lastName, text 
 		SetProduct(p).
 		Save(ctx)
 	if err != nil {
-		zlog.Err(err).Msgf("Failed to create review by %s %s for product with ID (%s)", name, lastName, product.ID)
+		zlog.Err(err).Msgf("Failed to create review by %s %s for product with ID (%s)", name, lastName, productID)
 		return nil, err
 	}
 
@@ -344,7 +344,7 @@ func updateProductAverageRating(ctx context.Context, tx *ent.Tx, productID strin
 	p, err := tx.Product.Query().
 		Where(product.ID(productID)).
 		WithReviews(). // eager-loading all reviews
-		ForUpdate().   // lock the product row for the duration of this transaction
+		ForUpdate().   // pessimistic locking => lock the product row for the duration of this transaction
 		Only(ctx)
 	if err != nil {
 		zlog.Error().Err(err).Msgf("Failed to retrieve product with ID (%s)", productID)
