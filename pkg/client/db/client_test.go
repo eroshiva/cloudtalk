@@ -103,12 +103,12 @@ func TestReviewCRUD(t *testing.T) {
 	})
 
 	// creating first review (excellent)
-	r1, err := db.CreateReview(ctx, client, reviewer1Name, reviewer1LastName, reviewer1Text, reviewer1Rating, p)
+	r1, err := db.CreateReview(ctx, client, reviewer1Name, reviewer1LastName, reviewer1Text, reviewer1Rating, p.ID)
 	require.NoError(t, err)
 	require.NotNil(t, r1)
 	// cleaning up review
 	t.Cleanup(func() {
-		err = db.DeleteReviewByID(ctx, client, r1.ID)
+		err = db.DeleteReviewByID(ctx, client, r1.ID, p.ID)
 		assert.NoError(t, err)
 	})
 	assert.Equal(t, reviewer1Name, r1.FirstName)
@@ -117,12 +117,12 @@ func TestReviewCRUD(t *testing.T) {
 	assert.Equal(t, int32(reviewer1Rating), r1.Rating)
 
 	// creating second review (OK)
-	r2, err := db.CreateReview(ctx, client, reviewer2Name, reviewer2LastName, reviewer2Text, reviewer2Rating, p)
+	r2, err := db.CreateReview(ctx, client, reviewer2Name, reviewer2LastName, reviewer2Text, reviewer2Rating, p.ID)
 	require.NoError(t, err)
 	require.NotNil(t, r2)
 	// cleaning up review
 	t.Cleanup(func() {
-		err = db.DeleteReviewByID(ctx, client, r2.ID)
+		err = db.DeleteReviewByID(ctx, client, r2.ID, p.ID)
 		assert.NoError(t, err)
 	})
 	assert.Equal(t, reviewer2Name, r2.FirstName)
@@ -140,12 +140,12 @@ func TestReviewCRUD(t *testing.T) {
 	assert.Equal(t, int32(reviewer2Rating), updR1.Rating)
 
 	// creating third review
-	r3, err := db.CreateReview(ctx, client, reviewer3Name, reviewer3LastName, reviewer3Text, reviewer3Rating, p)
+	r3, err := db.CreateReview(ctx, client, reviewer3Name, reviewer3LastName, reviewer3Text, reviewer3Rating, p.ID)
 	require.NoError(t, err)
 	require.NotNil(t, r3)
 	// cleaning up review
 	t.Cleanup(func() {
-		err = db.DeleteReviewByID(ctx, client, r3.ID)
+		err = db.DeleteReviewByID(ctx, client, r3.ID, p.ID)
 		assert.NoError(t, err)
 	})
 	assert.Equal(t, reviewer3Name, r3.FirstName)

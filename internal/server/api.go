@@ -143,7 +143,7 @@ func (srv *server) CreateReview(ctx context.Context, req *apiv1.CreateReviewRequ
 
 	// creating review
 	r, err := db.CreateReview(ctx, srv.dbClient, req.GetReview().GetFirstName(), req.GetReview().GetLastName(),
-		req.GetReview().GetReviewText(), req.GetReview().GetRating(), ConvertProductProtobufToProductResource(req.GetReview().GetProduct()))
+		req.GetReview().GetReviewText(), req.GetReview().GetRating(), req.GetReview().GetProduct().GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +239,7 @@ func (srv *server) DeleteReview(ctx context.Context, req *apiv1.DeleteReviewRequ
 	}
 
 	// removing review resource
-	err = db.DeleteReviewByID(ctx, srv.dbClient, req.GetId())
+	err = db.DeleteReviewByID(ctx, srv.dbClient, req.GetId(), r.Edges.Product.ID)
 	if err != nil {
 		return nil, err
 	}
