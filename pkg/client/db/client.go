@@ -162,13 +162,26 @@ func CreateReview(ctx context.Context, client *ent.Client, name, lastName, text 
 		zlog.Error().Err(err).Msgf("Review's rating must be between 1 and 5, but has %d", rating)
 		return nil, err
 	}
+	if product.ID == "" {
+		err := fmt.Errorf("review's product is not specified")
+		zlog.Error().Err(err).Send()
+		return nil, err
+	}
 
 	zlog.Debug().Msgf("Creating review by %s %s for product with ID (%s)", name, lastName, product.ID)
+
+	// retrieving full Product resource first
+	p, err := GetProductByID(ctx, client, product.ID)
+	if err != nil {
+		zlog.Err(err).Msgf("Failed to retrieve product with ID (%s)", product.ID)
+		return nil, err
+	}
+	p.Edges.Reviews = nil // no need to carry over inner references
 
 	// generating random ID for the Review resource
 	id := reviewPrefix + uuid.NewString()
 
-	p, err := client.Review.Create().
+	r, err := client.Review.Create().
 		SetID(id).
 		SetFirstName(name).
 		SetLastName(lastName).
@@ -181,7 +194,7 @@ func CreateReview(ctx context.Context, client *ent.Client, name, lastName, text 
 		return nil, err
 	}
 
-	return p, nil
+	return r, nil
 }
 
 // GetReviewByID retrieves Review resource by its ID.
