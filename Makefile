@@ -80,7 +80,7 @@ migration-hash: ## Hashes the atlas checksum to correspond to the migration
 migration-generate: ## Generate DB migration "make migration-generate MIGRATION=<migration-name>"
 	@if test -z $(MIGRATION); then echo "Please specify migration name" && exit 1; fi
 	$(MAKE) db-start
-	sleep 5;
+	sleep 5; ## Letting some time for PostgreSQL to start
 	atlas migrate diff $(MIGRATION) \
   		--dir "file://internal/ent/migrate/migrations" \
   		--to "ent://internal/ent/schema" \
@@ -96,6 +96,7 @@ db-stop: ## Stops PostgreSQL Docker instance
 
 rabbitmq-start: ## Starts RabbitMQ Docker instance
 	- $(MAKE) rabbitmq-stop
+	sleep 5; ## Letting some time for RabbitMQ to start
 	docker run --name ${DOCKER_RABBITMQ_NAME} -p 5672:5672 -p 15672:15672 --rm -d rabbitmq:latest
 
 rabbitmq-stop: ## Stops RabbitMQ Docker instance

@@ -42,7 +42,7 @@ func SetupFull(grpcServerAddress, httpServerAddress string) (*ent.Client, *amqp.
 		return nil, nil, nil, nil, nil, nil, nil, err
 	}
 
-	_, rabbitMQConn, rabbitMQCh, err := rabbitmq.Connect()
+	rabbitMQConn, rabbitMQCh, err := rabbitmq.Connect()
 	if err != nil {
 		return nil, nil, nil, nil, nil, nil, nil, err
 	}

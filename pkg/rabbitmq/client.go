@@ -23,8 +23,8 @@ var (
 	zlog      = logger.NewLogger("rabbitmq")
 )
 
-// Connect establishes connection with RabbitMQ.
-func Connect() (<-chan amqp.Delivery, *amqp.Connection, *amqp.Channel, error) {
+// Connect just establishes connection with RabbitMQ.
+func Connect() (*amqp.Connection, *amqp.Channel, error) {
 	// setting input session parameters
 	amqpURL := os.Getenv(envAMQPURL)
 	if amqpURL == "" {
@@ -39,18 +39,18 @@ func Connect() (<-chan amqp.Delivery, *amqp.Connection, *amqp.Channel, error) {
 	conn, err := amqp.Dial(amqpURL) // connection would be gracefully closed in the main function
 	if err != nil {
 		zlog.Error().Err(err).Msgf("Failed to connect to RabbitMQ on %s", amqpURL)
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	// establishing channel
 	ch, err := conn.Channel()
 	if err != nil {
 		zlog.Error().Err(err).Msg("Failed to open a channel")
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	// declaring/fetching the queue
-	q, err := ch.QueueDeclare(
+	_, err = ch.QueueDeclare(
 		queueName, // name
 		false,     // durable
 		false,     // delete when unused
@@ -60,21 +60,32 @@ func Connect() (<-chan amqp.Delivery, *amqp.Connection, *amqp.Channel, error) {
 	)
 	if err != nil {
 		zlog.Error().Err(err).Msgf("Failed to declare a queue %s", queueName)
+		return nil, nil, err
+	}
+
+	return conn, ch, nil
+}
+
+// ConnectAndConsume establishes connection with RabbitMQ and starts consumption of the messages.
+func ConnectAndConsume() (<-chan amqp.Delivery, *amqp.Connection, *amqp.Channel, error) {
+	// connecting to RabbitMQ
+	conn, ch, err := Connect()
+	if err != nil {
 		return nil, nil, nil, err
 	}
 
 	// starting to consume messages (in case we want to receive something)
 	msgs, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		queueName, // queue
+		"",        // consumer
+		true,      // auto-ack
+		false,     // exclusive
+		false,     // no-local
+		false,     // no-wait
+		nil,       // args
 	)
 	if err != nil {
-		zlog.Error().Err(err).Msgf("Failed to register a consumer for queue (%s)", q.Name)
+		zlog.Error().Err(err).Msgf("Failed to register a consumer for queue (%s)", queueName)
 		return nil, nil, nil, err
 	}
 	return msgs, conn, ch, nil

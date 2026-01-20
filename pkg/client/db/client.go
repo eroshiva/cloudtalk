@@ -250,7 +250,7 @@ func EditReview(ctx context.Context, client *ent.Client, id string, name, lastNa
 		SetFirstName(r.FirstName).
 		SetLastName(r.LastName).
 		SetReviewText(r.ReviewText).
-		SetRating(rating).
+		SetRating(r.Rating).
 		Save(ctx)
 	if err != nil {
 		zlog.Err(err).Msgf("Failed to edit review")

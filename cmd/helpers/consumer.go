@@ -13,7 +13,7 @@ import (
 var zlog = logger.NewLogger("cloudtalk-consumer")
 
 func main() {
-	msgs, conn, ch, err := rabbitmq.Connect()
+	msgs, conn, ch, err := rabbitmq.ConnectAndConsume()
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Failed to connect to RabbitMQ")
 	}
