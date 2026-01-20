@@ -23,7 +23,13 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+
+concurrency:
+  # Group runs by the Workflow Name + The Branch/Ref
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Cancel any older runs that are still running for this same branch
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -76,6 +82,9 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: '1.25'
+
+      - name: Setup dependencies
+        run: make deps
 
       - name: Unit tests
         run: make go-test
