@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/eroshiva/cloudtalk/internal/ent"
 	"github.com/eroshiva/cloudtalk/pkg/client/db"
@@ -158,4 +159,113 @@ func TestReviewCRUD(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, rs)
 	assert.Len(t, rs, 3)
+}
+
+func TestConcurrentAverageRatingComputation(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), prs_testing.DefaultTestTimeout)
+	t.Cleanup(cancel)
+
+	// creating product resource
+	p, err := db.CreateProduct(ctx, client, productName1, productDescription1, productPrice1)
+	require.NoError(t, err)
+	require.NotNil(t, p)
+	// cleaning up Product resource
+	t.Cleanup(func() {
+		err = db.DeleteProductByID(ctx, client, p.ID)
+		assert.NoError(t, err)
+	})
+
+	// creating first review (excellent)
+	r1, err := db.CreateReview(ctx, client, reviewer1Name, reviewer1LastName, reviewer1Text, reviewer1Rating, p.ID)
+	require.NoError(t, err)
+	require.NotNil(t, r1)
+	// cleaning up review
+	t.Cleanup(func() {
+		err = db.DeleteReviewByID(ctx, client, r1.ID, p.ID)
+		assert.NoError(t, err)
+	})
+
+	// checking average rating of the product
+	p, err = db.GetProductByID(ctx, client, p.ID)
+	require.NoError(t, err)
+	require.NotNil(t, p)
+	assert.Equal(t, float64(5), p.AverageRating) // this is only known value for sure
+	t.Logf("Average rating is %.2f\n", p.AverageRating)
+
+	// concurrently creating two new reviews and updating old one
+	go func() {
+		// creating second review (OK)
+		r2, err := db.CreateReview(ctx, client, reviewer2Name, reviewer2LastName, reviewer2Text, reviewer2Rating, p.ID)
+		require.NoError(t, err)
+		require.NotNil(t, r2)
+		// cleaning up review
+		t.Cleanup(func() {
+			err = db.DeleteReviewByID(ctx, client, r2.ID, p.ID)
+			assert.NoError(t, err)
+		})
+
+		// getting transaction
+		tx, err := client.Tx(ctx)
+		require.NoError(t, err)
+		// getting Product in transaction
+		retP, err := db.GetProductByIDTx(ctx, tx, p.ID)
+		require.NoError(t, err)
+		require.NotNil(t, retP)
+		t.Logf("Average rating is %.2f\n", retP.AverageRating)
+
+		// commiting transaction
+		require.NoError(t, tx.Commit())
+	}()
+
+	go func() {
+		// updating first review to be OK
+		updR1, err := db.EditReview(ctx, client, r1.ID, "", "", reviewer2Text, reviewer2Rating)
+		require.NoError(t, err)
+		require.NotNil(t, updR1)
+
+		// getting transaction
+		tx, err := client.Tx(ctx)
+		require.NoError(t, err)
+		// getting Product in transaction
+		retP, err := db.GetProductByIDTx(ctx, tx, p.ID)
+		require.NoError(t, err)
+		require.NotNil(t, retP)
+		t.Logf("Average rating is %.2f\n", retP.AverageRating)
+
+		// commiting transaction
+		require.NoError(t, tx.Commit())
+	}()
+
+	go func() {
+		// creating third review
+		r3, err := db.CreateReview(ctx, client, reviewer3Name, reviewer3LastName, reviewer3Text, reviewer3Rating, p.ID)
+		require.NoError(t, err)
+		require.NotNil(t, r3)
+		// cleaning up review
+		t.Cleanup(func() {
+			err = db.DeleteReviewByID(ctx, client, r3.ID, p.ID)
+			assert.NoError(t, err)
+		})
+
+		// getting transaction
+		tx, err := client.Tx(ctx)
+		require.NoError(t, err)
+		// getting Product in transaction
+		retP, err := db.GetProductByIDTx(ctx, tx, p.ID)
+		require.NoError(t, err)
+		require.NotNil(t, retP)
+		t.Logf("Average rating is %.2f\n", retP.AverageRating)
+
+		// commiting transaction
+		require.NoError(t, tx.Commit())
+	}()
+
+	// simple wait to let all concurrent goroutines to finish their execution
+	time.Sleep(time.Millisecond * 500)
+
+	// checking average rating of the product again
+	p, err = db.GetProductByID(ctx, client, p.ID)
+	require.NoError(t, err)
+	require.NotNil(t, p)
+	t.Logf("Average rating is %.2f\n", p.AverageRating)
 }

@@ -73,6 +73,23 @@ func GetProductByID(ctx context.Context, client *ent.Client, id string) (*ent.Pr
 	return p, nil
 }
 
+// GetProductByIDTx retrieves Product resource by its ID. Does not commit transaction!
+// This function should NOT be used in the production.
+func GetProductByIDTx(ctx context.Context, tx *ent.Tx, id string) (*ent.Product, error) {
+	zlog.Debug().Msgf("Retrieving product by ID (%s)", id)
+	p, err := tx.Product.Query().
+		Where(product.ID(id)).
+		// eager-loading reviews as well
+		WithReviews().
+		ForUpdate(). // locking
+		Only(ctx)
+	if err != nil {
+		zlog.Err(err).Msgf("Failed to retrieve product with ID (%s)", id)
+		return nil, rollback(tx, err)
+	}
+	return p, nil
+}
+
 // EditProduct updates all provided non-nil fields in Product resource.
 func EditProduct(ctx context.Context, client *ent.Client, id string, name, description, price string) (*ent.Product, error) {
 	zlog.Debug().Msgf("Editing product (%s)", id)
@@ -137,6 +154,16 @@ func DeleteProductByID(ctx context.Context, client *ent.Client, id string) error
 	return nil
 }
 
+// rollback calls to tx.Rollback and wraps the given error
+// with the rollback error if occurred.
+func rollback(tx *ent.Tx, err error) error {
+	if rerr := tx.Rollback(); rerr != nil {
+		err = fmt.Errorf("%w: %v", err, rerr)
+		zlog.Error().Err(err).Msgf("Failed to rollback transaction")
+	}
+	return err
+}
+
 // CreateReview creates a Review resource.
 func CreateReview(ctx context.Context, client *ent.Client, name, lastName, text string, rating int32, productID string) (
 	*ent.Review, error,
@@ -199,13 +226,13 @@ func CreateReview(ctx context.Context, client *ent.Client, name, lastName, text 
 		Save(ctx)
 	if err != nil {
 		zlog.Err(err).Msgf("Failed to create review by %s %s for product with ID (%s)", name, lastName, productID)
-		return nil, err
+		return nil, rollback(tx, err)
 	}
 
 	// recalculate average rating during the same transaction
 	_, err = updateProductAverageRating(ctx, tx, productID)
 	if err != nil {
-		return nil, err
+		return nil, rollback(tx, err)
 	}
 
 	// if all operations succeed, commit the transaction.
@@ -282,14 +309,14 @@ func EditReview(ctx context.Context, client *ent.Client, id string, name, lastNa
 		Save(ctx)
 	if err != nil {
 		zlog.Err(err).Msgf("Failed to edit review")
-		return nil, err
+		return nil, rollback(tx, err)
 	}
 
 	if numAfNodes != 1 {
 		// something bad has happened, returning error
 		newErr := fmt.Errorf("update of review didn't return error, number of affected nodes is %d", numAfNodes)
 		zlog.Error().Err(newErr).Send()
-		return nil, err
+		return nil, rollback(tx, err)
 	}
 
 	// recalculate average rating during the same transaction
@@ -320,7 +347,7 @@ func DeleteReviewByID(ctx context.Context, client *ent.Client, id, productID str
 	_, err = tx.Review.Delete().Where(review.ID(id)).Exec(ctx)
 	if err != nil {
 		zlog.Err(err).Msgf("Failed to delete review with ID (%s)", id)
-		return err
+		return rollback(tx, err)
 	}
 
 	// recalculate average rating during the same transaction
@@ -348,7 +375,7 @@ func updateProductAverageRating(ctx context.Context, tx *ent.Tx, productID strin
 		Only(ctx)
 	if err != nil {
 		zlog.Error().Err(err).Msgf("Failed to retrieve product with ID (%s)", productID)
-		return nil, err
+		return nil, rollback(tx, err)
 	}
 
 	// calculate the sum of ratings and the total count.
@@ -370,7 +397,7 @@ func updateProductAverageRating(ctx context.Context, tx *ent.Tx, productID strin
 		Save(ctx)
 	if err != nil {
 		zlog.Error().Err(err).Msgf("Failed to update average rating for product with ID (%s)", productID)
-		return nil, err
+		return nil, rollback(tx, err)
 	}
 
 	return updatedProduct, nil
