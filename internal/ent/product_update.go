@@ -71,16 +71,23 @@ func (_u *ProductUpdate) SetNillablePrice(v *string) *ProductUpdate {
 }
 
 // SetAverageRating sets the "average_rating" field.
-func (_u *ProductUpdate) SetAverageRating(v string) *ProductUpdate {
+func (_u *ProductUpdate) SetAverageRating(v float64) *ProductUpdate {
+	_u.mutation.ResetAverageRating()
 	_u.mutation.SetAverageRating(v)
 	return _u
 }
 
 // SetNillableAverageRating sets the "average_rating" field if the given value is not nil.
-func (_u *ProductUpdate) SetNillableAverageRating(v *string) *ProductUpdate {
+func (_u *ProductUpdate) SetNillableAverageRating(v *float64) *ProductUpdate {
 	if v != nil {
 		_u.SetAverageRating(*v)
 	}
+	return _u
+}
+
+// AddAverageRating adds value to the "average_rating" field.
+func (_u *ProductUpdate) AddAverageRating(v float64) *ProductUpdate {
+	_u.mutation.AddAverageRating(v)
 	return _u
 }
 
@@ -171,7 +178,10 @@ func (_u *ProductUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.SetField(product.FieldPrice, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.AverageRating(); ok {
-		_spec.SetField(product.FieldAverageRating, field.TypeString, value)
+		_spec.SetField(product.FieldAverageRating, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedAverageRating(); ok {
+		_spec.AddField(product.FieldAverageRating, field.TypeFloat64, value)
 	}
 	if _u.mutation.ReviewsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -281,16 +291,23 @@ func (_u *ProductUpdateOne) SetNillablePrice(v *string) *ProductUpdateOne {
 }
 
 // SetAverageRating sets the "average_rating" field.
-func (_u *ProductUpdateOne) SetAverageRating(v string) *ProductUpdateOne {
+func (_u *ProductUpdateOne) SetAverageRating(v float64) *ProductUpdateOne {
+	_u.mutation.ResetAverageRating()
 	_u.mutation.SetAverageRating(v)
 	return _u
 }
 
 // SetNillableAverageRating sets the "average_rating" field if the given value is not nil.
-func (_u *ProductUpdateOne) SetNillableAverageRating(v *string) *ProductUpdateOne {
+func (_u *ProductUpdateOne) SetNillableAverageRating(v *float64) *ProductUpdateOne {
 	if v != nil {
 		_u.SetAverageRating(*v)
 	}
+	return _u
+}
+
+// AddAverageRating adds value to the "average_rating" field.
+func (_u *ProductUpdateOne) AddAverageRating(v float64) *ProductUpdateOne {
+	_u.mutation.AddAverageRating(v)
 	return _u
 }
 
@@ -411,7 +428,10 @@ func (_u *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err er
 		_spec.SetField(product.FieldPrice, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.AverageRating(); ok {
-		_spec.SetField(product.FieldAverageRating, field.TypeString, value)
+		_spec.SetField(product.FieldAverageRating, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedAverageRating(); ok {
+		_spec.AddField(product.FieldAverageRating, field.TypeFloat64, value)
 	}
 	if _u.mutation.ReviewsCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -368,7 +368,7 @@ func TestGetReviewsByProductID(t *testing.T) {
 }
 
 func TestEditReview(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), prs_testing.DefaultTestTimeout*1000)
+	ctx, cancel := context.WithTimeout(context.Background(), prs_testing.DefaultTestTimeout)
 	t.Cleanup(cancel)
 
 	// creating request
@@ -408,4 +408,80 @@ func TestEditReview(t *testing.T) {
 	assert.Equal(t, reviewer1LastName, editResp.GetReview().GetLastName())
 	assert.Equal(t, reviewer2Text, editResp.GetReview().GetReviewText())
 	assert.Equal(t, int32(reviewer2Rating), editResp.GetReview().GetRating())
+}
+
+func TestAverageRatingComputations(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), prs_testing.DefaultTestTimeout)
+	t.Cleanup(cancel)
+
+	// creating request
+	req1 := server.CreateProductRequest(productName1, productDescription1, productPrice1)
+
+	// sending request to the server
+	res1, err := grpcClient.CreateProduct(ctx, req1)
+	require.NoError(t, err)
+	require.NotNil(t, res1)
+	require.NotNil(t, res1.GetProduct())
+	t.Cleanup(func() {
+		// cleaning up product resource at the end of the test
+		_, err = grpcClient.DeleteProduct(ctx, server.DeleteProductRequest(res1.GetProduct().GetId()))
+		assert.NoError(t, err)
+	})
+	assert.Equal(t, productName1, res1.GetProduct().GetName())
+	assert.Equal(t, productDescription1, res1.GetProduct().GetDescription())
+	assert.Equal(t, productPrice1, res1.GetProduct().GetPrice())
+
+	// creating review
+	revReq1 := server.CreateReviewRequest(reviewer1Name, reviewer1LastName, reviewer1Text, reviewer1Rating, res1.GetProduct().GetId())
+	rev1, err := grpcClient.CreateReview(ctx, revReq1)
+	require.NoError(t, err)
+	require.NotNil(t, rev1)
+	t.Cleanup(func() {
+		// cleaning up review resource at the end of the test
+		_, err = grpcClient.DeleteReview(ctx, server.DeleteReviewRequest(rev1.GetReview().GetId()))
+		assert.NoError(t, err)
+	})
+	// retrieve product by ID and get the average rating - must be already computed
+	product, err := grpcClient.GetProductByID(ctx, server.GetProductByIDRequest(res1.GetProduct().GetId()))
+	require.NoError(t, err)
+	require.NotNil(t, product)
+	t.Logf("Average rating is %.2f\n", product.GetProduct().GetAverageRating())
+
+	// adding another review
+	revReq2 := server.CreateReviewRequest(reviewer2Name, reviewer2LastName, reviewer2Text, reviewer2Rating, res1.GetProduct().GetId())
+	rev2, err := grpcClient.CreateReview(ctx, revReq2)
+	require.NoError(t, err)
+	require.NotNil(t, rev2)
+	t.Cleanup(func() {
+		// cleaning up review resource at the end of the test
+		_, err = grpcClient.DeleteReview(ctx, server.DeleteReviewRequest(rev2.GetReview().GetId()))
+		assert.NoError(t, err)
+	})
+	// retrieve product by ID and get the average rating - must be already computed
+	product, err = grpcClient.GetProductByID(ctx, server.GetProductByIDRequest(res1.GetProduct().GetId()))
+	require.NoError(t, err)
+	require.NotNil(t, product)
+	t.Logf("Average rating is %.2f\n", product.GetProduct().GetAverageRating())
+
+	// adding one more review
+	revReq3 := server.CreateReviewRequest(reviewer3Name, reviewer3LastName, reviewer3Text, reviewer3Rating, res1.GetProduct().GetId())
+	rev3, err := grpcClient.CreateReview(ctx, revReq3)
+	require.NoError(t, err)
+	require.NotNil(t, rev3)
+	t.Cleanup(func() {
+		// cleaning up review resource at the end of the test
+		_, err = grpcClient.DeleteReview(ctx, server.DeleteReviewRequest(rev3.GetReview().GetId()))
+		assert.NoError(t, err)
+	})
+
+	// retrieving all reviews by product ID
+	reviews, err := grpcClient.GetReviewsByProductID(ctx, server.GetReviewsByProductIDRequest(res1.GetProduct().GetId()))
+	require.NoError(t, err)
+	require.NotNil(t, reviews)
+	assert.Len(t, reviews.GetReviews(), 3) // making sure there are precisely 3 reviews assigned to this product
+	// retrieve product by ID and get the average rating - must be already computed
+	product, err = grpcClient.GetProductByID(ctx, server.GetProductByIDRequest(res1.GetProduct().GetId()))
+	require.NoError(t, err)
+	require.NotNil(t, product)
+	t.Logf("Average rating is %.2f\n", product.GetProduct().GetAverageRating())
 }

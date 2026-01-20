@@ -39,7 +39,7 @@ func (_c *ProductCreate) SetPrice(v string) *ProductCreate {
 }
 
 // SetAverageRating sets the "average_rating" field.
-func (_c *ProductCreate) SetAverageRating(v string) *ProductCreate {
+func (_c *ProductCreate) SetAverageRating(v float64) *ProductCreate {
 	_c.mutation.SetAverageRating(v)
 	return _c
 }
@@ -159,7 +159,7 @@ func (_c *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 		_node.Price = value
 	}
 	if value, ok := _c.mutation.AverageRating(); ok {
-		_spec.SetField(product.FieldAverageRating, field.TypeString, value)
+		_spec.SetField(product.FieldAverageRating, field.TypeFloat64, value)
 		_node.AverageRating = value
 	}
 	if nodes := _c.mutation.ReviewsIDs(); len(nodes) > 0 {

@@ -473,8 +473,8 @@
           }
         },
         "averageRating": {
-          "type": "string",
-          "title": "might not be part of the product"
+          "type": "number",
+          "format": "double"
         }
       },
       "description": "Modelling DB resources below.\nProduct resource definition."

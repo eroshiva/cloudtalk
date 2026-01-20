@@ -14,7 +14,7 @@ type Product struct {
 }
 
 func (Product) Fields() []ent.Field {
-	return []ent.Field{field.String("id"), field.String("name"), field.String("description"), field.String("price"), field.String("average_rating")}
+	return []ent.Field{field.String("id"), field.String("name"), field.String("description"), field.String("price"), field.Float("average_rating")}
 }
 func (Product) Edges() []ent.Edge {
 	return []ent.Edge{edge.To("reviews", Review.Type)}

@@ -696,7 +696,7 @@ type Product struct {
 	Description   string    `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	Price         string    `protobuf:"bytes,4,opt,name=price,proto3" json:"price,omitempty"` // this is to avoid floating point number precision issues, not in the scope of this task
 	Reviews       []*Review `protobuf:"bytes,5,rep,name=reviews,proto3" json:"reviews,omitempty"`
-	AverageRating string    `protobuf:"bytes,6,opt,name=average_rating,json=averageRating,proto3" json:"average_rating,omitempty"` // might not be part of the product
+	AverageRating float64   `protobuf:"fixed64,6,opt,name=average_rating,json=averageRating,proto3" json:"average_rating,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -766,11 +766,11 @@ func (x *Product) GetReviews() []*Review {
 	return nil
 }
 
-func (x *Product) GetAverageRating() string {
+func (x *Product) GetAverageRating() float64 {
 	if x != nil {
 		return x.AverageRating
 	}
-	return ""
+	return 0
 }
 
 // Review resource definition.
@@ -900,7 +900,7 @@ const file_api_v1_product_reviews_proto_rawDesc = "" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x14\n" +
 	"\x05price\x18\x04 \x01(\tR\x05price\x12.\n" +
 	"\areviews\x18\x05 \x03(\v2\x0e.api.v1.ReviewB\x04¦I\x00R\areviews\x12%\n" +
-	"\x0eaverage_rating\x18\x06 \x01(\tR\raverageRating:\x06\xba\xa6I\x02\b\x01\"\xd1\x01\n" +
+	"\x0eaverage_rating\x18\x06 \x01(\x01R\raverageRating:\x06\xba\xa6I\x02\b\x01\"\xd1\x01\n" +
 	"\x06Review\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
