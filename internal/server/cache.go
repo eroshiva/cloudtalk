@@ -16,10 +16,10 @@ type Cache struct {
 
 // NewCache creates a new cache.
 func NewCache() (*Cache, error) {
-	c, err := otter.MustBuilder[string, any](1000).
-		CollectStats().
-		Cost(func(key string, value any) uint32 {
-			return 1
+	c, err := otter.MustBuilder[string, any](1000). // default 1000 items capacity
+							CollectStats().
+							Cost(func(_ string, _ any) uint32 {
+			return 1 // equal cost for each entry
 		}).
 		WithTTL(defaultCachingTimeout).
 		Build()
