@@ -24,7 +24,7 @@ This is a bottleneck for scaling. Somehow, task does not define scaling as its p
 
 To avoid low-level DB queries, an ORM library was used.
 
-To satisfy notification part of the task, any event related to manipulation of review is published to `RabbitMQ`.
+To satisfy notification part of the task, any event related to manipulation of review is published to `RabbitMQ` (see `make consume` target).
 
 
 ## Architecture
@@ -112,6 +112,7 @@ Logic is following:
 
 ## Usage
 You can bring up whole solution simply by running `make up`, which will buidl Docker image and start Docker compose environment.
+To consume events triggered on review manipulation, run `make consume`.
 
 
 ## Example commands
