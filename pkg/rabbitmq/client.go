@@ -4,7 +4,6 @@ package rabbitmq
 import (
 	"context"
 	"os"
-	"time"
 
 	"github.com/eroshiva/cloudtalk/pkg/logger"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -15,7 +14,6 @@ const (
 	defaultAMQPURL   = "amqp://guest:guest@localhost:5672/"
 	envQueueName     = "QUEUE_NAME"
 	defaultQueueName = "review_events"
-	defaultTimeout   = 5 * time.Second
 )
 
 var (

@@ -10,7 +10,6 @@ GOFUMPT_VERSION := v0.9.2
 BUF_VERSION := v1.62.1
 GRPC_GATEWAY_VERSION := v2.27.4
 PROTOC_GEN_ENT_VERSION := v0.7.0
-KIND_VERSION := v0.31.0
 DOCKER_POSTGRESQL_NAME := product-reviews-postgresql
 DOCKER_POSTGRESQL_VERSION := 15
 DOCKER_RABBITMQ_NAME := rabbitmq
@@ -57,13 +56,10 @@ build: go-tidy build-product-reviews ## Builds all code
 build-product-reviews: ## Build the Go binary for product reviews system
 	go build -mod=vendor -o build/_output/${POC_NAME} ./cmd/product-reviews.go
 
-deps: buf-install go-linters-install atlas-install kind-install ## Installs developer prerequisites for this project
+deps: buf-install go-linters-install atlas-install ## Installs developer prerequisites for this project
 	go get github.com/grpc-ecosystem/grpc-gateway/v2@${GRPC_GATEWAY_VERSION}
 	go install entgo.io/contrib/entproto/cmd/protoc-gen-ent@${PROTOC_GEN_ENT_VERSION}
 	go install mvdan.cc/gofumpt@${GOFUMPT_VERSION}
-
-kind-install: ## Installs kind to the system
-	go install sigs.k8s.io/kind@${KIND_VERSION}
 
 atlas-inspect: ## Inspect connection with DB with atlas
 	atlas schema inspect --url "postgresql://${PGUSER}:${PGPASSWORD}@localhost:${PGPORT}/${PGDATABASE}?search_path=public" --format "OK"
@@ -125,7 +121,7 @@ go-test: rabbitmq-start bring-up-db ## Run unit tests present in the codebase
 
 test-ci: generate buf-lint build go-vet govulncheck go-linters go-test ## Test the whole codebase (mimics CI/CD)
 
-run: go-tidy build-product-reviews bring-up-db ## Runs compiled network device monitoring service
+run: go-tidy build-product-reviews bring-up-db rabbitmq-start ## Runs compiled product reviews service
 	sleep 5;
 	./build/_output/${POC_NAME}
 
@@ -143,35 +139,25 @@ image: ## Builds a Docker image for Network Device monitoring service
 
 images: image ## Builds Docker images for monitoring service and for device simulator
 
-docker-run: image bring-up-db ## Runs compiled binary in a Docker container
+docker-run: image bring-up-db rabbitmq-start ## Runs compiled binary in a Docker container
 	docker run --net=host --rm ${DOCKER_REPOSITORY}/${POC_NAME}:${POC_VERSION}
 
-kind: images ## Builds Docker image for API Gateway and loads it to the currently configured kind cluster
-	@if [ "`kind get clusters`" = '' ]; then echo "no kind cluster found" && exit 1; fi
-	kind load docker-image ${DOCKER_REPOSITORY}/${POC_NAME}:${POC_VERSION}
+poc: build up ## Runs PoC with Docker compose
 
-create-cluster: delete-cluster ## Creates cluster with KinD
-	kind create cluster
+up: image ## Brings up Docker compose environment
+	POSTGRES_USER=${PGUSER} POSTGRES_PASSWORD=${PGPASSWORD} docker-compose up --build -d
 
-delete-cluster: ## Removes KinD cluster
-	kind delete cluster
+down: ## Destroys Docker compose environment
+	docker-compose down
 
-kubectl-delete-namespace: ## Deletes namespace with kubectl
-	kubectl delete namespace ${KUBE_NAMESPACE}
+logs-postgresql:
+	docker logs postgres
 
-deploy-product-reviews: ## Deploys Product Reviews service Helm charts
-	helm upgrade --install product-reviews ./helm-charts/product-reviews --namespace ${KUBE_NAMESPACE} --create-namespace --wait
+logs-rabbit:
+	docker logs rabbitmq
 
-update-product-reviews-charts: ## Updates dependencies for Product Reviews service charts (i.e., pull PostgreSQL dependency)
-	helm dependency update ./helm-charts/product-reviews
-
-helm-test: ## Runs helm testo for a Product Reviews service
-	helm test product-reviews --namespace ${KUBE_NAMESPACE}
-
-poc: kind-install create-cluster go-tidy kind update-product-reviews-charts deploy-product-reviews ## Runs PoC in Kubernetes cluster
-
-poc-test: ## Runs PoC in Kubernetes cluster
-poc-test: kind-install create-cluster go-tidy kind update-product-reviews-charts deploy-product-reviews deploy-product-reviews helm-test delete-cluster
+logs-prs:
+	docker logs cloudtalk-prs-1 -f
 
 go-tidy: ## Runs go mod related commands
 	go mod tidy
