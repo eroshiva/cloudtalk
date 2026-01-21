@@ -3,6 +3,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 	"os"
@@ -81,7 +82,7 @@ func serve(grpcAddress, httpAddress string, dbClient *ent.Client, rabbitMQ *amqp
 	// Start the server.
 	zlog.Info().Msgf("gRPC server listening at %v", lis.Addr())
 
-	go func() {
+	wg.Go(func() {
 		// On testing will be nil
 		if readyChan != nil {
 			readyChan <- true
@@ -90,25 +91,21 @@ func serve(grpcAddress, httpAddress string, dbClient *ent.Client, rabbitMQ *amqp
 		if err := s.Serve(lis); err != nil {
 			zlog.Fatal().Err(err).Msgf("Failed to serve")
 		}
-	}()
-
-	// starting reverse proxy
-	wg.Go(func() {
-		startReverseProxy(grpcAddress, httpAddress, grpcReadyChan, reverseProxyReadyChan, reverseProxyTermChan)
 	})
 
+	// starting reverse proxy
+	go startReverseProxy(grpcAddress, httpAddress, wg, grpcReadyChan, reverseProxyReadyChan, reverseProxyTermChan)
+
 	// handle termination signals
-	termSig := <-termChan
-	if termSig {
-		zlog.Info().Msg("Gracefully stopping gRPC server")
-		s.Stop()
-	}
+	<-termChan
+	zlog.Info().Msg("Gracefully stopping gRPC server")
+	s.Stop()
 }
 
 // startReverseProxy starts the gRPC reverse proxy server which is connected to the HTTP handler.
-func startReverseProxy(grpcServerAddress, httpServerAddress string, grocReadyChan, reverseProxyReadyChan, reverseProxyTermChan chan bool) {
+func startReverseProxy(grpcServerAddress, httpServerAddress string, wg *sync.WaitGroup, grpcReadyChan, reverseProxyReadyChan, reverseProxyTermChan chan bool) {
 	// waiting for the gRPC server to start first
-	<-grocReadyChan
+	<-grpcReadyChan
 	zlog.Info().Msg("Starting reverse HTTP proxy")
 
 	// creating the gRPC-Gateway reverse proxy.
@@ -133,24 +130,28 @@ func startReverseProxy(grpcServerAddress, httpServerAddress string, grocReadyCha
 		Handler: mux,
 	}
 
-	go func() {
+	wg.Go(func() {
 		// On testing will be nil
 		if reverseProxyReadyChan != nil {
 			reverseProxyReadyChan <- true
 		}
-		if err = gwServer.ListenAndServe(); err != nil {
+		// The ListenAndServe call now has its error checked specifically.
+		if err := gwServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			// Only log a fatal error if it's something other than the server being closed.
 			zlog.Fatal().Err(err).Msg("Failed to serve HTTP gateway")
+		} else {
+			// This will now be logged on a clean shutdown.
+			zlog.Debug().Msg("HTTP reverse proxy is stopped")
 		}
-	}()
+	})
 
 	// handle termination signals
-	termSig := <-reverseProxyTermChan
-	if termSig {
-		zlog.Info().Msg("Gracefully stopping HTTP server")
-		err = gwServer.Shutdown(context.Background())
-		if err != nil {
-			zlog.Fatal().Err(err).Msg("Failed to gracefully shutdown HTTP gateway")
-		}
+	<-reverseProxyTermChan
+
+	zlog.Info().Msg("Gracefully stopping HTTP server")
+	err = gwServer.Shutdown(context.Background())
+	if err != nil {
+		zlog.Fatal().Err(err).Msg("Failed to gracefully shutdown HTTP gateway")
 	}
 }
 
@@ -191,5 +192,5 @@ func StartServer(gRPCServerAddress, httpServerAddress string, dbClient *ent.Clie
 	}
 
 	// start server
-	serve(gRPCServerAddress, httpServerAddress, dbClient, rabbitMQ, wg, serverOptions, termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan)
+	go serve(gRPCServerAddress, httpServerAddress, dbClient, rabbitMQ, wg, serverOptions, termChan, readyChan, reverseProxyReadyChan, reverseProxyTermChan)
 }
