@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	apiv1 "github.com/eroshiva/cloudtalk/api/v1"
 	"github.com/eroshiva/cloudtalk/internal/ent"
@@ -307,7 +308,8 @@ func TestCreateReview(t *testing.T) {
 }
 
 func TestGetReviewsByProductID(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), prs_testing.DefaultTestTimeout)
+	deltaWait := 1*time.Minute + 100*time.Millisecond
+	ctx, cancel := context.WithTimeout(context.Background(), prs_testing.DefaultTestTimeout+deltaWait)
 	t.Cleanup(cancel)
 
 	// creating request
@@ -362,6 +364,21 @@ func TestGetReviewsByProductID(t *testing.T) {
 
 	// retrieving all reviews by product ID
 	reviews, err := grpcClient.GetReviewsByProductID(ctx, server.GetReviewsByProductIDRequest(res1.GetProduct().GetId()))
+	require.NoError(t, err)
+	require.NotNil(t, reviews)
+	assert.Len(t, reviews.GetReviews(), 3) // making sure there are precisely 3 reviews assigned to this product
+
+	// performing second call - should hit cache
+	reviews, err = grpcClient.GetReviewsByProductID(ctx, server.GetReviewsByProductIDRequest(res1.GetProduct().GetId()))
+	require.NoError(t, err)
+	require.NotNil(t, reviews)
+	assert.Len(t, reviews.GetReviews(), 3) // making sure there are precisely 3 reviews assigned to this product
+
+	// now waiting for bit more than a minute (default time of caching) and performing third call - now request should hit DB
+	t.Logf("Waiting for cached entries to be invalidated\n")
+	time.Sleep(deltaWait)
+	// performing second call - should hit cache
+	reviews, err = grpcClient.GetReviewsByProductID(ctx, server.GetReviewsByProductIDRequest(res1.GetProduct().GetId()))
 	require.NoError(t, err)
 	require.NotNil(t, reviews)
 	assert.Len(t, reviews.GetReviews(), 3) // making sure there are precisely 3 reviews assigned to this product

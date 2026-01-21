@@ -36,6 +36,8 @@ type server struct {
 	dbClient *ent.Client
 	// client for pushing events to RabbitMQ
 	rabbitMQChannel *amqp.Channel
+	// cache for storing product reviews and average ratings
+	cache *Cache
 }
 
 // Options structure defines server's features enablement.
@@ -61,9 +63,16 @@ func serve(grpcAddress, httpAddress string, dbClient *ent.Client, rabbitMQ *amqp
 	// Create a new gRPC server instance.
 	s := grpc.NewServer(serverOptions...)
 
+	// creating cache
+	c, err := NewCache()
+	if err != nil {
+		zlog.Fatal().Err(err).Msg("Failed to create cache")
+	}
+
 	gRPCServer := &server{
 		dbClient:        dbClient,
 		rabbitMQChannel: rabbitMQ,
+		cache:           c,
 	}
 
 	// Register our server implementation with the gRPC server.
