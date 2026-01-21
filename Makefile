@@ -139,16 +139,25 @@ image: ## Builds a Docker image for Network Device monitoring service
 
 images: image ## Builds Docker images for monitoring service and for device simulator
 
-docker-run: image bring-up-db ## Runs compiled binary in a Docker container
+docker-run: image bring-up-db rabbitmq-start ## Runs compiled binary in a Docker container
 	docker run --net=host --rm ${DOCKER_REPOSITORY}/${POC_NAME}:${POC_VERSION}
 
 poc: build up ## Runs PoC with Docker compose
 
 up: image ## Brings up Docker compose environment
-	POSTGRES_USER=${PGUSER} POSTGRES_PASSWORD=${PGPASSWORD} docker-compose up -d
+	POSTGRES_USER=${PGUSER} POSTGRES_PASSWORD=${PGPASSWORD} docker-compose up --build -d
 
 down: ## Destroys Docker compose environment
 	docker-compose down
+
+logs-postgresql:
+	docker logs postgres
+
+logs-rabbit:
+	docker logs rabbitmq
+
+logs-prs:
+	docker logs cloudtalk-prs-1 -f
 
 go-tidy: ## Runs go mod related commands
 	go mod tidy

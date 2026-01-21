@@ -130,6 +130,8 @@ func startReverseProxy(grpcServerAddress, httpServerAddress string, wg *sync.Wai
 		Handler: mux,
 	}
 
+	zlog.Info().Msgf("HTTP reverse proxy gateway listening at %v", gwServer.Addr)
+
 	wg.Go(func() {
 		// On testing will be nil
 		if reverseProxyReadyChan != nil {

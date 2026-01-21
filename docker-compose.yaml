@@ -5,11 +5,14 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - db
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5
+
   db:
     container_name: postgres
     image: "postgres:15"
@@ -17,28 +20,55 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATA: /data/postgres
-      POSTGRES_DB: bank
+      POSTGRES_DB: ${POSTGRES_DB:-bank}
     volumes:
-      - db:/Users/ivaneroshkin/go/src/github.com/eroshiva/data/data/postgres
+      - db:/var/lib/postgresql/data
     ports:
       - "5332:5432"
     networks:
       - db
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB:-bank}" ]
       interval: 30s
       timeout: 10s
       retries: 5
+
+  # Applies migrations before the app starts
+  migration:
+    image: arigaio/atlas:latest-alpine
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./internal/ent/migrate/migrations:/migrations
+    command: migrate apply --dir="file:///migrations" --url="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-bank}?sslmode=disable&search_path=public"
+    networks:
+      - db
+
   prs:
     image: "eroshiva/product-reviews:0.1.0"
     environment:
+      - PGHOST=db
+      - PGPORT=5432
+      - PGUSER=${POSTGRES_USER}
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+      - PGDATABASE=${POSTGRES_DB:-bank}
+      - PGSSLMODE=disable
       - AMQP_URL=amqp://guest:guest@rabbitmq:5672/
+      - GRPC_SERVER_ADDRESS=0.0.0.0:50051
+      - HTTP_SERVER_ADDRESS=0.0.0.0:50052
+    ports:
+      - "50051:50051"
+      - "50052:50052"
     depends_on:
       rabbitmq:
         condition: service_healthy
-      db:
-        condition: service_healthy
+      # wait for migration to finish successfully before starting the app
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - db
 
 networks:
   db:
