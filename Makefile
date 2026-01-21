@@ -145,7 +145,7 @@ docker-run: image bring-up-db ## Runs compiled binary in a Docker container
 poc: build up ## Runs PoC with Docker compose
 
 up: image ## Brings up Docker compose environment
-	docker-compose up -d
+	POSTGRES_USER=${PGUSER} POSTGRES_PASSWORD=${PGPASSWORD} docker-compose up -d
 
 down: ## Destroys Docker compose environment
 	docker-compose down
