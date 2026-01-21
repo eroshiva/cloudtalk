@@ -27,6 +27,9 @@ func (srv *server) CreateProduct(ctx context.Context, req *apiv1.CreateProductRe
 		return nil, err
 	}
 
+	// updating cache
+	srv.cache.SetProduct(p)
+
 	return &apiv1.CreateProductResponse{
 		Product: &apiv1.Product{
 			Id:          p.ID,
@@ -47,11 +50,38 @@ func (srv *server) GetProductByID(ctx context.Context, req *apiv1.GetProductByID
 		return nil, err
 	}
 
+	// checking cache first
+	if p, ok := srv.cache.GetProduct(req.GetId()); ok {
+		zlog.Info().Msgf("Product %s found in cache", req.GetId())
+		// ensure reviews are loaded for the cached product.
+		// if cached product doesn't contain any reviews, load them
+		if len(p.Edges.Reviews) == 0 {
+			reviews, err := db.GetReviewsByProductID(ctx, srv.dbClient, p.ID)
+			if err != nil {
+				return nil, err
+			}
+			p.Edges.Reviews = reviews
+		}
+		return &apiv1.GetProductByIDResponse{
+			Product: ConvertProductResourceToProtobuf(p),
+		}, nil
+	}
+
 	// retrieving product by ID
 	p, err := db.GetProductByID(ctx, srv.dbClient, req.GetId())
 	if err != nil {
 		return nil, err
 	}
+
+	// load reviews for the product before caching
+	reviews, err := db.GetReviewsByProductID(ctx, srv.dbClient, p.ID)
+	if err != nil {
+		return nil, err
+	}
+	p.Edges.Reviews = reviews
+
+	// setting/updating cache
+	srv.cache.SetProduct(p)
 
 	return &apiv1.GetProductByIDResponse{
 		Product: ConvertProductResourceToProtobuf(p),
@@ -80,6 +110,9 @@ func (srv *server) EditProduct(ctx context.Context, req *apiv1.EditProductReques
 		return nil, err
 	}
 
+	// invalidating cache
+	srv.cache.DeleteProduct(req.GetProduct().GetId())
+
 	return &apiv1.EditProductResponse{
 		Product: ConvertProductResourceToProtobuf(updP),
 	}, nil
@@ -100,6 +133,10 @@ func (srv *server) DeleteProduct(ctx context.Context, req *apiv1.DeleteProductRe
 	if err != nil {
 		return nil, err
 	}
+
+	// invalidating cache
+	srv.cache.DeleteProduct(req.GetId())
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -148,6 +185,9 @@ func (srv *server) CreateReview(ctx context.Context, req *apiv1.CreateReviewRequ
 		return nil, err
 	}
 
+	// invalidating cache
+	srv.cache.DeleteReviews(req.GetReview().GetProduct().GetId())
+
 	// publishing event that review was created
 	err = rabbitmq.PublishMessage(ctx, srv.rabbitMQChannel, ComposeEventOnReviewChange("created",
 		r.Rating, r.FirstName, r.LastName, req.GetReview().GetProduct().GetId()))
@@ -170,11 +210,26 @@ func (srv *server) GetReviewsByProductID(ctx context.Context, req *apiv1.GetRevi
 		return nil, err
 	}
 
+	// checking cache first
+	if rs, ok := srv.cache.GetReviews(req.GetId()); ok {
+		zlog.Info().Msgf("Reviews for product %s found in cache", req.GetId())
+		reviews := make([]*apiv1.Review, 0)
+		for _, r := range rs {
+			reviews = append(reviews, ConvertReviewResourceToProtobuf(r))
+		}
+		return &apiv1.GetReviewsByProductIDResponse{
+			Reviews: reviews,
+		}, nil
+	}
+
 	// retrieving resource
 	rs, err := db.GetReviewsByProductID(ctx, srv.dbClient, req.GetId())
 	if err != nil {
 		return nil, err
 	}
+
+	// setting/updating cache
+	srv.cache.SetReviews(req.GetId(), rs)
 
 	// converting back to Protobuf format
 	reviews := make([]*apiv1.Review, 0)
@@ -207,6 +262,9 @@ func (srv *server) EditReview(ctx context.Context, req *apiv1.EditReviewRequest)
 	if err != nil {
 		return nil, err
 	}
+
+	// invalidating cache
+	srv.cache.DeleteReviews(updR.Edges.Product.ID)
 
 	// publishing event that review was modified
 	err = rabbitmq.PublishMessage(ctx, srv.rabbitMQChannel, ComposeEventOnReviewChange("modified", updR.Rating,
@@ -243,6 +301,9 @@ func (srv *server) DeleteReview(ctx context.Context, req *apiv1.DeleteReviewRequ
 	if err != nil {
 		return nil, err
 	}
+
+	// invalidating cache
+	srv.cache.DeleteReviews(r.Edges.Product.ID)
 
 	// publishing event that review was deleted
 	err = rabbitmq.PublishMessage(ctx, srv.rabbitMQChannel, ComposeEventOnReviewChange("deleted", r.Rating, r.FirstName, r.LastName, r.Edges.Product.ID))
