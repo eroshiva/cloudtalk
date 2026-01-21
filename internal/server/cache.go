@@ -7,6 +7,8 @@ import (
 	"github.com/maypok86/otter"
 )
 
+const defaultCachingTimeout = time.Minute
+
 // Cache is a struct for caching operations.
 type Cache struct {
 	c otter.Cache[string, any]
@@ -19,7 +21,7 @@ func NewCache() (*Cache, error) {
 		Cost(func(key string, value any) uint32 {
 			return 1
 		}).
-		WithTTL(time.Hour).
+		WithTTL(defaultCachingTimeout).
 		Build()
 	if err != nil {
 		return nil, err

@@ -53,15 +53,6 @@ func (srv *server) GetProductByID(ctx context.Context, req *apiv1.GetProductByID
 	// checking cache first
 	if p, ok := srv.cache.GetProduct(req.GetId()); ok {
 		zlog.Info().Msgf("Product %s found in cache", req.GetId())
-		// ensure reviews are loaded for the cached product.
-		// if cached product doesn't contain any reviews, load them
-		if len(p.Edges.Reviews) == 0 {
-			reviews, err := db.GetReviewsByProductID(ctx, srv.dbClient, p.ID)
-			if err != nil {
-				return nil, err
-			}
-			p.Edges.Reviews = reviews
-		}
 		return &apiv1.GetProductByIDResponse{
 			Product: ConvertProductResourceToProtobuf(p),
 		}, nil
@@ -73,14 +64,7 @@ func (srv *server) GetProductByID(ctx context.Context, req *apiv1.GetProductByID
 		return nil, err
 	}
 
-	// load reviews for the product before caching
-	reviews, err := db.GetReviewsByProductID(ctx, srv.dbClient, p.ID)
-	if err != nil {
-		return nil, err
-	}
-	p.Edges.Reviews = reviews
-
-	// setting/updating cache
+	// setting cache
 	srv.cache.SetProduct(p)
 
 	return &apiv1.GetProductByIDResponse{
@@ -187,6 +171,7 @@ func (srv *server) CreateReview(ctx context.Context, req *apiv1.CreateReviewRequ
 
 	// invalidating cache
 	srv.cache.DeleteReviews(req.GetReview().GetProduct().GetId())
+	srv.cache.DeleteProduct(req.GetReview().GetProduct().GetId()) // removing product entry so fresh data can be fetched during the Get operation
 
 	// publishing event that review was created
 	err = rabbitmq.PublishMessage(ctx, srv.rabbitMQChannel, ComposeEventOnReviewChange("created",
@@ -265,6 +250,7 @@ func (srv *server) EditReview(ctx context.Context, req *apiv1.EditReviewRequest)
 
 	// invalidating cache
 	srv.cache.DeleteReviews(updR.Edges.Product.ID)
+	srv.cache.DeleteProduct(updR.Edges.Product.ID) // removing product entry so fresh data can be fetched during the Get operation
 
 	// publishing event that review was modified
 	err = rabbitmq.PublishMessage(ctx, srv.rabbitMQChannel, ComposeEventOnReviewChange("modified", updR.Rating,
@@ -304,6 +290,7 @@ func (srv *server) DeleteReview(ctx context.Context, req *apiv1.DeleteReviewRequ
 
 	// invalidating cache
 	srv.cache.DeleteReviews(r.Edges.Product.ID)
+	srv.cache.DeleteProduct(r.Edges.Product.ID) // removing product entry so fresh data can be fetched during the Get operation
 
 	// publishing event that review was deleted
 	err = rabbitmq.PublishMessage(ctx, srv.rabbitMQChannel, ComposeEventOnReviewChange("deleted", r.Rating, r.FirstName, r.LastName, r.Edges.Product.ID))
